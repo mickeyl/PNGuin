@@ -4,3 +4,6 @@
 DerivedData/
 build/
 .DS_Store
+App/Config/Local.xcconfig
+App/ScreenGrab/Resources/Shark.swift
+App/ScreenGrab/Resources/Info.plist

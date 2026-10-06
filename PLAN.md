@@ -90,7 +90,7 @@ iphone-screenshot list [--json]
 
 - Status item: SF Symbol `iphone.gen3.badge.play` / fallback `iphone`. Window-style popover.
 - Rows: device name, OS, availability badge (Ready / Locked / Unreachable, from the lockState probe); icon right-aligned,
-  text left-aligned. Whole row is the button; spinner while capturing; disabled when not ready.
+  text left-aligned. Row tap selects the device (loads its preview); the camera button captures; spinner while capturing; button disabled when not ready.
 - Locked device: row explains "Unlock the iPhone", with auto-retry on next poll.
 - Preview: opening the menu captures one preview (best-status device: last used, else first
   ready) into `~/Library/Caches/ScreenGrab/previews/<udid>.png` and shows it as soon as it

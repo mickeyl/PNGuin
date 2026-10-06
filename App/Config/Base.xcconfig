@@ -1,0 +1,15 @@
+// Shared build knobs, referenced (never overwritten) by `xcodegen generate`.
+SWIFT_VERSION = 6.0
+CODE_SIGN_STYLE = Automatic
+
+// Signing identity stays out of the repository: put DEVELOPMENT_TEAM into Config/Local.xcconfig.
+#include? "Local.xcconfig"
+
+MARKETING_VERSION = 0.1.0
+CURRENT_PROJECT_VERSION = 1
+
+SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor
+SWIFT_APPROACHABLE_CONCURRENCY = YES
+
+// Shark writes Shark.swift and reads the strings files.
+ENABLE_USER_SCRIPT_SANDBOXING = NO

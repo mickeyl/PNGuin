@@ -1,0 +1,3 @@
+// The app launches `xcrun devicectl`, which the App Sandbox forbids; this rules out the Mac App Store.
+ENABLE_APP_SANDBOX = NO
+ENABLE_HARDENED_RUNTIME = YES
