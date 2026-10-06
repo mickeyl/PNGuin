@@ -28,11 +28,19 @@ final class AppModel {
     private(set) var lastCapture: CaptureRecord?
     var errorMessage: String?
 
-    var selectedUDID: String? {
+    private(set) var selectedUDID: String? {
         didSet {
             guard selectedUDID != oldValue else { return }
             showCachedPreview()
         }
+    }
+
+    // Until the user picks a row, the selection follows the best device, which is only known once probing has finished.
+    @ObservationIgnored private var selectionIsManual = false
+
+    func select(_ device: Device) {
+        selectionIsManual = true
+        selectedUDID = device.udid
     }
 
     @ObservationIgnored private var monitoring: Task<Void, Never>?
@@ -84,7 +92,9 @@ final class AppModel {
     private func apply(_ newDevices: [Device]) {
         devices = newDevices
         hasScanned = true
-        guard selectedUDID == nil || !newDevices.contains(where: { $0.udid == selectedUDID }) else { return }
+        let selectionStillValid = newDevices.contains { $0.udid == selectedUDID }
+        guard !selectionIsManual || !selectionStillValid else { return }
+        selectionIsManual = selectionIsManual && selectionStillValid
         selectedUDID = newDevices.first { $0.udid == settings.lastUsedUDID && $0.isReady }?.udid
             ?? newDevices.first(where: \.isReady)?.udid
             ?? newDevices.first?.udid

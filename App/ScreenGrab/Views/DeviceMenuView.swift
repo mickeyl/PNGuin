@@ -51,7 +51,7 @@ struct DeviceMenuView: View {
                         device: device,
                         isSelected: device.udid == model.selectedUDID,
                         isCapturing: model.capturing.contains(device.udid),
-                        select: { model.selectedUDID = device.udid },
+                        select: { model.select(device) },
                         capture: { Task { await model.capture(device) } }
                     )
                 }
