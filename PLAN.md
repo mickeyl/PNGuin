@@ -18,7 +18,11 @@ screenshot`, which needs no tunnel daemon, no sudo and no Python.
   Both are recoverable user states, not bugs.
 - `xcrun devicectl list devices --json-output <file>` takes ~0.3 s and gives, per device:
   `deviceProperties.name/osVersionNumber`, `hardwareProperties.udid/deviceType/reality`,
-  `connectionProperties.tunnelState/transportType`. `tunnelState == connected` means usable.
+  `connectionProperties.*`. All paired devices are listed as available whether or not they are
+  nearby; `tunnelState` only reflects the most recently used tunnel and is NOT a readiness signal.
+- `xcrun devicectl device info lockState --device X --json-output f` (~0.6 s, run in parallel for
+  all devices, 5 s timeout) is the readiness probe: success + `passcodeRequired:false` = ready,
+  `passcodeRequired:true` or error 10003 = locked, anything else = unreachable.
 - There is no event/subscription interface in `devicectl`; liveness requires polling.
 
 ## Architecture
@@ -73,9 +77,9 @@ iphone-screenshot list [--json]
 ```
 
 - `capture` is the default subcommand. stdout: the PNG path only (one line). stderr: errors/hints.
-- `list`: TSV by default (name, udid, state, os), `--json` for structured output.
+- `list`: probes all devices in parallel; TSV by default (name, udid, ready|locked|unreachable, os), `--json` for structured output, `--no-probe` for an instant unprobed list.
 - Device resolution: explicit `--device` (name or UDID, case-insensitive) -> env
-  `IPHONE_SCREENSHOT_DEVICE_NAME` -> the only connected device -> error listing candidates.
+  `IPHONE_SCREENSHOT_DEVICE_NAME` -> the only *ready* device (probed) -> error listing candidates.
   (The hard-coded default `M16` goes away; ambiguity is reported instead of guessed.)
 - Exit codes: 0 ok, 1 capture failed, 2 usage, 3 device not found / ambiguous, 4 device locked
   (so an agent can tell "ask the user to unlock" from a real failure), 127 devicectl missing.
@@ -85,7 +89,7 @@ iphone-screenshot list [--json]
 ## Menu-bar app UX
 
 - Status item: SF Symbol `iphone.gen3.badge.play` / fallback `iphone`. Window-style popover.
-- Rows: device name, model + OS, state badge (Ready / Locked / Not connected); icon right-aligned,
+- Rows: device name, OS, availability badge (Ready / Locked / Unreachable, from the lockState probe); icon right-aligned,
   text left-aligned. Whole row is the button; spinner while capturing; disabled when not ready.
 - Locked device: row explains "Unlock the iPhone", with auto-retry on next poll.
 - Preview: opening the menu captures one preview (best-status device: last used, else first

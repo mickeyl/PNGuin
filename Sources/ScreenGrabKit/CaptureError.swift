@@ -17,8 +17,8 @@ extension CaptureError: LocalizedError {
         switch self {
             case .devicectlMissing: "devicectl not found (Xcode 27 or later is required)."
             case .notFound(let query): "No device matches '\(query)'."
-            case .noDevice: "No connected iPhone or iPad found."
-            case .ambiguous(let candidates): "Several devices are connected; choose one with --device: \(candidates.joined(separator: ", "))."
+            case .noDevice: "No ready (unlocked, reachable) iPhone or iPad found."
+            case .ambiguous(let candidates): "Several devices are ready; choose one with --device: \(candidates.joined(separator: ", "))."
             case .locked: "The device is locked. Unlock it and try again."
             case .developerDiskImage: "The developer disk image could not be mounted on the device."
             case .unexpectedOutput(let detail): "Unexpected devicectl output: \(detail)"
