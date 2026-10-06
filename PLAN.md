@@ -32,7 +32,8 @@ ScreenGrab/
     ScreenGrabKit/          library, no UI
       Device.swift                value type: name, udid, kind, osVersion, connectionState
       DeviceList.swift            parse `devicectl list devices` JSON -> [Device] (pure, tested)
-      Devicectl.swift             async Process runner (stdout/stderr capture, timeout, cancellation)
+      PreviewCache.swift          cache dir + per-device preview file management
+    Devicectl.swift             async Process runner (stdout/stderr capture, timeout, cancellation)
       DeviceCenter.swift          list devices; refresh
       Screenshotter.swift         capture(device:to:) -> URL, maps CoreDevice errors -> CaptureError
       CaptureError.swift          .locked, .notConnected, .notFound, .devicectlMissing, .failed(String)
@@ -87,6 +88,13 @@ iphone-screenshot list [--json]
 - Rows: device name, model + OS, state badge (Ready / Locked / Not connected); icon right-aligned,
   text left-aligned. Whole row is the button; spinner while capturing; disabled when not ready.
 - Locked device: row explains "Unlock the iPhone", with auto-retry on next poll.
+- Preview: opening the menu captures one preview (best-status device: last used, else first
+  ready) into `~/Library/Caches/ScreenGrab/previews/<udid>.png` and shows it as soon as it
+  arrives (~0.7 s measured, stable over repeated captures); the last cached preview is shown
+  meanwhile. Previews never touch the output folder; only the Screenshot action saves a file.
+  Selecting another row loads its preview. Optional auto-refresh (~1 fps while the menu is
+  open, off by default: it keeps the iPhone busy). Locked devices show "Unlock the iPhone".
+  True live video is not possible via `devicectl` (screen-record only writes files).
 - After capture: thumbnail row at top with Reveal in Finder, Copy, Open in Preview; capture also
   copied to clipboard if enabled. Optional notification (off by default).
 - Footer: Settings, Quit. Settings: output folder (default `~/Desktop`, same as CLI), copy to
