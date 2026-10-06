@@ -89,15 +89,28 @@ final class AppModel {
         }
     }
 
-    private func apply(_ newDevices: [Device]) {
+    /// Ready devices first, then most recently used, then by name (the order devices arrive in).
+    private func sorted(_ devices: [Device]) -> [Device] {
+        func rank(_ device: Device) -> Int {
+            switch device.availability {
+                case .ready: 0
+                case .unknown, .locked: 1
+                case .unreachable: 2
+            }
+        }
+        return devices.sorted {
+            (rank($0), settings.lastUsed[$1.udid] ?? .distantPast, $0.name.lowercased()) < (rank($1), settings.lastUsed[$0.udid] ?? .distantPast, $1.name.lowercased())
+        }
+    }
+
+    private func apply(_ listed: [Device]) {
+        let newDevices = sorted(listed)
         devices = newDevices
         hasScanned = true
         let selectionStillValid = newDevices.contains { $0.udid == selectedUDID }
         guard !selectionIsManual || !selectionStillValid else { return }
         selectionIsManual = selectionIsManual && selectionStillValid
-        selectedUDID = newDevices.first { $0.udid == settings.lastUsedUDID && $0.isReady }?.udid
-            ?? newDevices.first(where: \.isReady)?.udid
-            ?? newDevices.first?.udid
+        selectedUDID = newDevices.first?.udid
     }
 
     var selectedDevice: Device? { devices.first { $0.udid == selectedUDID } }
@@ -153,7 +166,7 @@ final class AppModel {
         do {
             try await Screenshotter.capture(udid: device.udid, to: destination)
             guard let image = NSImage(contentsOf: destination) else { return }
-            settings.lastUsedUDID = device.udid
+            settings.markUsed(device.udid)
             lastCapture = CaptureRecord(url: destination, image: image, deviceName: device.name)
             if settings.copyToClipboard { copy(image) }
             logger.info("saved \(destination.path)")

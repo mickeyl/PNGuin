@@ -21,6 +21,7 @@ Popover width 340, inset 12, row gap 8, section gap 12, row height 44, icon colu
 
 ## Behaviour
 - The popover is the only UI (`LSUIElement`, no Dock icon, no windows).
+- Rows are ordered: ready devices first, then most recently used (by last screenshot), then by name.
 - Row tap = select device (loads its preview); camera button = save a screenshot.
 - Preview is captured into `~/Library/Caches/ScreenGrab/previews`, never into the output folder.
 - All user-visible strings live in `en.lproj`/`de.lproj` and are accessed as `R.L.*` (Shark).
