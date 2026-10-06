@@ -1,4 +1,8 @@
-# ScreenGrab
+<p align="center">
+  <img src="assets/logo.png" alt="ScreenGrab logo" width="160">
+</p>
+
+<h1 align="center">ScreenGrab</h1>
 
 A macOS menu-bar app and a CLI (`iphone-screenshot`) that list your paired iPhones and iPads and
 capture their screens, built on `xcrun devicectl` (Xcode 27 or later). No tunnel daemon, no sudo.
