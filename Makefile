@@ -4,8 +4,8 @@ BUILD_DIR   ?= $(CURDIR)/build
 CONFIG      ?= Debug
 PREFIX      ?= $(HOME)/.local
 APP_DEST    ?= /Applications
-XCODEBUILD  := xcodebuild -project App/ScreenGrab.xcodeproj -scheme ScreenGrab -configuration $(CONFIG) -derivedDataPath $(BUILD_DIR)
-APP         := $(BUILD_DIR)/Build/Products/$(CONFIG)/ScreenGrab.app
+XCODEBUILD   = xcodebuild -project App/ScreenGrab.xcodeproj -scheme ScreenGrab -configuration $(CONFIG) -derivedDataPath $(BUILD_DIR)
+APP          = $(BUILD_DIR)/Build/Products/$(CONFIG)/ScreenGrab.app
 
 .PHONY: help generate build cli test run install install-cli list-devices clean
 
