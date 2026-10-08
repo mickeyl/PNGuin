@@ -6,6 +6,8 @@ PREFIX      ?= $(HOME)/.local
 APP_DEST    ?= /Applications
 XCODEBUILD   = xcodebuild -project App/ScreenGrab.xcodeproj -scheme ScreenGrab -configuration $(CONFIG) -derivedDataPath $(BUILD_DIR)
 APP          = $(BUILD_DIR)/Build/Products/$(CONFIG)/ScreenGrab.app
+# xcodebuild writes the app's pins into the root Package.resolved, plain SwiftPM prunes them again; this keeps them.
+SWIFTPM     := --force-resolved-versions
 
 .PHONY: help generate build cli test run install install-cli list-devices clean
 
@@ -21,10 +23,10 @@ build: generate ## Build the menu-bar app.
 	$(XCODEBUILD) build | xcbeautify -qq
 
 cli: ## Build the iphone-screenshot CLI (release).
-	swift build -c release --product iphone-screenshot
+	swift build $(SWIFTPM) -c release --product iphone-screenshot
 
 test: ## Run the ScreenGrabKit unit tests.
-	swift test
+	swift test $(SWIFTPM)
 
 run: build ## Build and launch the app (logs to the terminal).
 	LOGLEVEL=TRACE OS_ACTIVITY_MODE=disabled $(APP)/Contents/MacOS/ScreenGrab
@@ -39,7 +41,7 @@ install-cli: cli ## Install iphone-screenshot to PREFIX/bin.
 	install -m 755 .build/release/iphone-screenshot "$(PREFIX)/bin/iphone-screenshot"
 
 list-devices: ## List paired iPhones/iPads with their availability.
-	swift run -q iphone-screenshot list
+	swift run $(SWIFTPM) -q iphone-screenshot list
 
 clean: ## Remove build artifacts.
 	rm -rf .build build App/ScreenGrab.xcodeproj

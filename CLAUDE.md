@@ -23,4 +23,6 @@ design, HIG.md for UI tokens, `make help` for commands.
   (`WindowVisibilityObserver`), because `onAppear` is unreliable for window-style MenuBarExtra.
 - The app must stay unsandboxed (launches `xcrun`).
 - The `devicectl` JSON is not a documented contract: parse defensively and keep fixture tests.
+- `Package.resolved` holds the app's pins too (xcodebuild writes them there); plain `swift build/test`
+  prunes them, so use the Makefile targets (`--force-resolved-versions`).
 - Comments/commits in English, no co-author trailers.
