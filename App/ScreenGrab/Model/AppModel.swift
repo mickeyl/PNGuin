@@ -98,17 +98,10 @@ final class AppModel {
         }
     }
 
-    /// Ready devices first, then most recently used, then by name (the order devices arrive in).
+    /// Most recently used first, then by name. Availability deliberately plays no part, so rows don't jump when a device locks.
     private func sorted(_ devices: [Device]) -> [Device] {
-        func rank(_ device: Device) -> Int {
-            switch device.availability {
-                case .ready: 0
-                case .unknown, .locked: 1
-                case .unreachable: 2
-            }
-        }
-        return devices.sorted {
-            (rank($0), settings.lastUsed[$1.udid] ?? .distantPast, $0.name.lowercased()) < (rank($1), settings.lastUsed[$0.udid] ?? .distantPast, $1.name.lowercased())
+        devices.sorted {
+            (settings.lastUsed[$1.udid] ?? .distantPast, $0.name.lowercased()) < (settings.lastUsed[$0.udid] ?? .distantPast, $1.name.lowercased())
         }
     }
 
@@ -119,10 +112,13 @@ final class AppModel {
         let selectionStillValid = newDevices.contains { $0.udid == selectedUDID }
         guard !selectionIsManual || !selectionStillValid else { return }
         selectionIsManual = false
-        // While probes are pending the ranking is provisional; only jump early for a confirmed ready device, so the selection doesn't hop.
-        let rankingSettled = newDevices.first?.isReady == true || !newDevices.contains { $0.availability == .unknown }
-        guard rankingSettled || !selectionStillValid else { return }
-        selectedUDID = newDevices.first?.udid
+        // The best device is the most recently used ready one. A more recent device still being probed might beat it,
+        // so only commit once nothing ahead of it is pending; otherwise the selection hops while probes come in.
+        let candidates = newDevices.prefix { !$0.isReady }
+        let best = newDevices.first(where: \.isReady) ?? newDevices.first
+        let bestIsSettled = !candidates.contains { $0.availability == .unknown }
+        guard bestIsSettled || !selectionStillValid else { return }
+        selectedUDID = best?.udid
     }
 
     private func update(_ udid: String, to availability: Device.Availability) {
@@ -149,6 +145,7 @@ final class AppModel {
     func copyPreview() {
         guard case .image(let image) = preview else { return }
         copy(image)
+        markSelectedUsed()
     }
 
     /// Hands out a file (not just image data), so Finder, Mail, chats etc. all accept the drop.
@@ -158,7 +155,14 @@ final class AppModel {
             let url = try? PreviewCache.exportedCopy(udid: udid),
             let provider = NSItemProvider(contentsOf: url)
         else { return NSItemProvider() }
+        markSelectedUsed()
         return provider
+    }
+
+    /// Taking a preview out by copy or drag counts as using the device, just like a saved screenshot.
+    private func markSelectedUsed() {
+        guard let udid = selectedUDID else { return }
+        settings.markUsed(udid)
     }
 
     private func previewLoop() async {

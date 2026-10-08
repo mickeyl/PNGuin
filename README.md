@@ -47,7 +47,7 @@ into `App/Config/Local.xcconfig` (`DEVELOPMENT_TEAM = …`).
 ## The menu-bar app
 
 - Open the menu: devices appear immediately, readiness is checked one device at a time (selected device first), and a preview of the
-  best device (ready first, then most recently used) is captured and shown within a second.
+  most recently used ready device is captured and shown within a second.
 - Click a row to preview another device; click the camera button to save a screenshot.
 - After a capture you get a thumbnail with *Show in Finder*, *Copy* and *Open*.
 - Settings: output folder (default `~/Desktop`), copy to clipboard, continuous preview refresh
