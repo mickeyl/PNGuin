@@ -17,6 +17,8 @@ design, HIG.md for UI tokens, `make help` for commands.
   a reachable device flips to "unreachable". The app publishes each result as it arrives, selected
   device first.
 - A preview can be dragged out (as a temp file named like a real capture) or clicked to copy.
+- SwiftUI's own minification of a ~1200x2600 screenshot to ~150x320 px (1x displays) aliases text into
+  illegibility; `SharpImage` shows a Lanczos copy at the exact backing size (`ImageScaler`).
 - The app polls (5 s) only while its panel is key
   (`WindowVisibilityObserver`), because `onAppear` is unreliable for window-style MenuBarExtra.
 - The app must stay unsandboxed (launches `xcrun`).

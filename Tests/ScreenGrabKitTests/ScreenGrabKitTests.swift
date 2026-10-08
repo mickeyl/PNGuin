@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 import Testing
 @testable import ScreenGrabKit
@@ -139,5 +140,25 @@ private let fixture = """
         #expect(exported.lastPathComponent.hasPrefix("iphone-screenshot-"))
         #expect(try Data(contentsOf: exported) == Data([1, 2, 3]))
         #expect(FileManager.default.fileExists(atPath: source.path))
+    }
+}
+
+@Suite struct ImageScalerTests {
+
+    @Test func scalesToExactPixelSize() async throws {
+        let context = try #require(CGContext(data: nil, width: 1206, height: 2622, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        context.setFillColor(CGColor(red: 1, green: 0, blue: 0, alpha: 1))
+        context.fill(CGRect(x: 0, y: 0, width: 1206, height: 2622))
+        let source = try #require(context.makeImage())
+
+        let scaled = try #require(await ImageScaler.scaled(source, width: 147, height: 320))
+        #expect(scaled.width == 147)
+        #expect(scaled.height == 320)
+    }
+
+    @Test func rejectsEmptyTarget() async throws {
+        let context = try #require(CGContext(data: nil, width: 4, height: 4, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        let source = try #require(context.makeImage())
+        #expect(await ImageScaler.scaled(source, width: 0, height: 10) == nil)
     }
 }

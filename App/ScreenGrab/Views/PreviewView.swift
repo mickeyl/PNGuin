@@ -21,9 +21,7 @@ struct PreviewView: View {
                         Text(R.L.PreviewView_LOADING).font(.statusNote).foregroundStyle(.secondary)
                     }
                 case .image(let image):
-                    Image(nsImage: image)
-                        .resizable()
-                        .scaledToFit()
+                    SharpImage(image: image)
                         .clipShape(.rect(cornerRadius: Metrics.previewCornerRadius))
                         .overlay(alignment: .bottom) { if showsCopied { copiedBadge } }
                         .onTapGesture(perform: didTap)
