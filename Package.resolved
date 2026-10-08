@@ -1,33 +1,6 @@
 {
-  "originHash" : "61cf769824a9c6299d70ad9d43ade8baf364d54526c30ac21e6678ff34069d61",
+  "originHash" : "333d59d5d4476ddec1ae227fb837996802865f7c582e147baba8991e5c36f532",
   "pins" : [
-    {
-      "identity" : "anycodable",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mickeyl/AnyCodable",
-      "state" : {
-        "revision" : "bcbafbc461058bda170ca59013ba599b5613e72a",
-        "version" : "0.6.6"
-      }
-    },
-    {
-      "identity" : "cornucopiacore",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Cornucopia-Swift/CornucopiaCore",
-      "state" : {
-        "branch" : "master",
-        "revision" : "41e33602f304bdda835280bf123ecf416d30be97"
-      }
-    },
-    {
-      "identity" : "foundationbandaid",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mickeyl/FoundationBandAid",
-      "state" : {
-        "branch" : "master",
-        "revision" : "163e98760ce824d9c880684ec1014228795ef8c3"
-      }
-    },
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
@@ -35,24 +8,6 @@
       "state" : {
         "revision" : "6a52f3251125d74daf04fcbd5e6f08a75d074382",
         "version" : "1.8.2"
-      }
-    },
-    {
-      "identity" : "swift-asn1",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-asn1.git",
-      "state" : {
-        "revision" : "3b6410f7dee09eb33cdd26260c5fd47fda19b0e2",
-        "version" : "1.7.3"
-      }
-    },
-    {
-      "identity" : "swift-crypto",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-crypto",
-      "state" : {
-        "revision" : "95ba0316a9b733e92bb6b071255ff46263bbe7dc",
-        "version" : "3.15.1"
       }
     }
   ],
