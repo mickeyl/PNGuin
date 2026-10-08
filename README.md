@@ -17,6 +17,10 @@ ScreenGrab is two things built on the same core:
 - **`iphone-screenshot`, a CLI** that prints the path of the captured PNG and uses meaningful exit
   codes. It is made for scripts and for AI agents: *"take a screenshot of my iPhone and have a look"*.
 
+<p align="center">
+  <img src="assets/menu-screenshot.png" alt="The ScreenGrab menu: paired devices with their state and a live preview of the selected iPhone" width="386">
+</p>
+
 ## Requirements
 
 - macOS 15 or later (the app targets macOS 26), **Xcode 27 or later** (`devicectl device capture` ships with it).
