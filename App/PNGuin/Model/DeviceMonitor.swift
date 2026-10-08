@@ -1,4 +1,4 @@
-import ScreenGrabKit
+import PNGuinKit
 
 /// Physical devices: lists them, then probes one at a time, because overlapping probes wedge CoreDevice
 /// (see `DeviceCenter.probed`). Every change is published as it happens.

@@ -5,7 +5,7 @@ public enum PreviewCache {
 
     public static var directory: URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("ScreenGrab/previews", isDirectory: true)
+            .appendingPathComponent("PNGuin/previews", isDirectory: true)
     }
 
     public static func url(for udid: String) -> URL {
@@ -29,7 +29,7 @@ public enum PreviewCache {
     /// Copies the preview under a regular screenshot name, so a drag hands out a sensibly named file.
     /// Only the latest drag needs its file (drop targets copy it), so older ones are discarded.
     public static func exportedCopy(udid: String) throws -> URL {
-        let exports = FileManager.default.temporaryDirectory.appendingPathComponent("ScreenGrab-drag", isDirectory: true)
+        let exports = FileManager.default.temporaryDirectory.appendingPathComponent("PNGuin-drag", isDirectory: true)
         try? FileManager.default.removeItem(at: exports)
         try FileManager.default.createDirectory(at: exports, withIntermediateDirectories: true)
 

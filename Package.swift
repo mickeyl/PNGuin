@@ -2,24 +2,24 @@
 import PackageDescription
 
 let package = Package(
-    name: "ScreenGrab",
+    name: "PNGuin",
     platforms: [.macOS(.v15)],
     products: [
-        .library(name: "ScreenGrabKit", targets: ["ScreenGrabKit"]),
+        .library(name: "PNGuinKit", targets: ["PNGuinKit"]),
         .executable(name: "iphone-screenshot", targets: ["iphone-screenshot"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
     ],
     targets: [
-        .target(name: "ScreenGrabKit"),
+        .target(name: "PNGuinKit"),
         .executableTarget(
             name: "iphone-screenshot",
             dependencies: [
-                "ScreenGrabKit",
+                "PNGuinKit",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ]
         ),
-        .testTarget(name: "ScreenGrabKitTests", dependencies: ["ScreenGrabKit"]),
+        .testTarget(name: "PNGuinKitTests", dependencies: ["PNGuinKit"]),
     ]
 )

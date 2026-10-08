@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct ScreenGrabApp: App {
+struct PNGuinApp: App {
 
     @State private var model: AppModel
 
@@ -10,7 +10,7 @@ struct ScreenGrabApp: App {
     }
 
     var body: some Scene {
-        MenuBarExtra("ScreenGrab", systemImage: "iphone.gen3") {
+        MenuBarExtra("PNGuin", systemImage: "iphone.gen3") {
             DeviceMenuView(model: model)
         }
         .menuBarExtraStyle(.window)

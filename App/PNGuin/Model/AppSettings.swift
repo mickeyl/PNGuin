@@ -1,6 +1,6 @@
 import Foundation
 import Observation
-import ScreenGrabKit
+import PNGuinKit
 import ServiceManagement
 
 @Observable

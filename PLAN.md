@@ -1,4 +1,4 @@
-# ScreenGrab – Implementation Plan
+# PNGuin – Implementation Plan
 
 Simulator support (0.9.0) is planned in [SIMULATORS.md](SIMULATORS.md).
 
@@ -29,13 +29,13 @@ screenshot`, which needs no tunnel daemon, no sudo and no Python.
 
 ## Architecture
 
-SwiftPM package `ScreenGrab` (macOS 15+), plus an XcodeGen-generated app project.
+SwiftPM package `PNGuin` (macOS 15+), plus an XcodeGen-generated app project.
 
 ```
-ScreenGrab/
+PNGuin/
   Package.swift
   Sources/
-    ScreenGrabKit/          library, no UI
+    PNGuinKit/          library, no UI
       Device.swift                value type: name, udid, kind, osVersion, connectionState
       DeviceList.swift            parse `devicectl list devices` JSON -> [Device] (pure, tested)
       PreviewCache.swift          cache dir + per-device preview file management
@@ -47,7 +47,7 @@ ScreenGrab/
     iphone-screenshot/      CLI executable (swift-argument-parser)
       main / Capture.swift / List.swift
   App/                      macOS menu-bar app target (XcodeGen, LSUIElement)
-    ScreenGrabApp.swift         MenuBarExtra(.window)
+    PNGuinApp.swift         MenuBarExtra(.window)
     DeviceMenuView.swift        list + footer
     DeviceRow.swift             name, OS, state badge, capture button
     LastCaptureView.swift       thumbnail + Reveal / Copy / Open
@@ -55,7 +55,7 @@ ScreenGrab/
     AppModel.swift              @Observable; polling only while menu is open
     Theme.swift                 semantic colours / typography / metrics
     Resources/{en,de}.lproj/Localizable.strings, Shark.swift (R.L.*)
-  Tests/ScreenGrabKitTests/     DeviceList parsing fixtures, error mapping, filename logic
+  Tests/PNGuinKitTests/     DeviceList parsing fixtures, error mapping, filename logic
   project.yml  Makefile  HIG.md  README.md  LICENSE (MIT)  CLAUDE.md
 ```
 
@@ -95,7 +95,7 @@ iphone-screenshot list [--json]
   text left-aligned. Row tap selects the device (loads its preview); the camera button captures; spinner while capturing; button disabled when not ready.
 - Locked device: row explains "Unlock the iPhone", with auto-retry on next poll.
 - Preview: opening the menu captures one preview (best-status device: last used, else first
-  ready) into `~/Library/Caches/ScreenGrab/previews/<udid>.png` and shows it as soon as it
+  ready) into `~/Library/Caches/PNGuin/previews/<udid>.png` and shows it as soon as it
   arrives (~0.7 s measured, stable over repeated captures); the last cached preview is shown
   meanwhile. Previews never touch the output folder; only the Screenshot action saves a file.
   Selecting another row loads its preview. Optional auto-refresh (~1 fps while the menu is
@@ -108,7 +108,7 @@ iphone-screenshot list [--json]
 - Localisation en + de via Shark (`R.L.<View>_<ELEMENT>`), typographic quotes/ellipses.
 - Light/Dark/System via semantic colours; HIG.md documents tokens.
 - Logging via `Cornucopia.Core.Logger`.
-- App and CLI share ScreenGrabKit and the same output-dir default; the app does not shell out
+- App and CLI share PNGuinKit and the same output-dir default; the app does not shell out
   to the CLI (one code path, typed errors).
 
 ## Skill integration
@@ -142,7 +142,7 @@ iphone-screenshot list [--json]
    real `devicectl` output, device names/UDIDs anonymised).
 2. CLI on top of the Kit; verify against real devices (unlocked M16/M17, locked LM15pro).
 3. App target: model, menu, capture, last-capture row, settings, localisation, HIG.md.
-4. Skill/AGENTS.md update, README, MIT license, publish `mickeyl/ScreenGrab` (public, `master`).
+4. Skill/AGENTS.md update, README, MIT license, publish `mickeyl/PNGuin` (public, `master`).
 
 ## Validation
 

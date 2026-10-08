@@ -1,10 +1,10 @@
-# ScreenGrab
+# PNGuin
 
 Menu-bar app + `iphone-screenshot` CLI around `xcrun devicectl` (Xcode 27+). See PLAN.md for the
 design, HIG.md for UI tokens, `make help` for commands.
 
 ## Layout
-- `Sources/ScreenGrabKit` – UI-free core (device list parsing, readiness probe, capture). Both products use it.
+- `Sources/PNGuinKit` – UI-free core (device list parsing, readiness probe, capture). Both products use it.
 - `Sources/iphone-screenshot` – CLI (swift-argument-parser). stdout = PNG path only; exit codes in `--help`.
 - `App/` – XcodeGen project (`project.yml`, never hand-edit the `.xcodeproj`), SwiftUI `MenuBarExtra`.
 
@@ -32,4 +32,6 @@ design, HIG.md for UI tokens, `make help` for commands.
   not set means the user's own overrides, which are left alone. `--batteryState charged` shows a bolt.
 - `Package.resolved` holds the app's pins too (xcodebuild writes them there); plain `swift build/test`
   prunes them, so use the Makefile targets (`--force-resolved-versions`).
+- The app was renamed from ScreenGrab (fastlane already has a `screengrab`); the bundle identifier stays
+  `de.vanille.ScreenGrab` on purpose (UserDefaults: settings, lastUsed). The CLI keeps its descriptive name.
 - Comments/commits in English, no co-author trailers.

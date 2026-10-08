@@ -1,15 +1,15 @@
 <p align="center">
-  <img src="assets/logo.png" alt="ScreenGrab logo" width="160">
+  <img src="assets/logo.png" alt="PNGuin logo" width="160">
 </p>
 
-<h1 align="center">ScreenGrab</h1>
+<h1 align="center">PNGuin</h1>
 
 <p align="center">
   Screenshots of your iPhone and iPad from the Mac menu bar or the command line.<br>
   No tunnel daemon, no <code>sudo</code>, no Python – just Xcode's own <code>devicectl</code>.
 </p>
 
-ScreenGrab is two things built on the same core:
+PNGuin (say *penguin*) delivers PNGs from your devices. It is two things built on the same core:
 
 - **A menu-bar app** that lists your paired iPhones and iPads with their state (ready, locked, not
   reachable), shows a preview of the selected device the moment you open the menu, and saves a
@@ -19,7 +19,7 @@ ScreenGrab is two things built on the same core:
   codes. It is made for scripts and for AI agents: *"take a screenshot of my iPhone and have a look"*.
 
 <p align="center">
-  <img src="assets/menu-screenshot.png" alt="The ScreenGrab menu: paired devices with their state and a live preview of the selected iPhone" width="386">
+  <img src="assets/menu-screenshot.png" alt="The PNGuin menu: paired devices with their state and a live preview of the selected iPhone" width="386">
   <img src="assets/menu-simulators.png" alt="The Simulators tab: running iPhone and iPad simulators with a live preview of the selected iPad" width="386">
 </p>
 
@@ -41,9 +41,9 @@ brew install iphone-screenshot
 ### From source
 
 ```sh
-git clone https://github.com/mickeyl/ScreenGrab.git && cd ScreenGrab
+git clone https://github.com/mickeyl/PNGuin.git && cd PNGuin
 make install-cli   # iphone-screenshot -> ~/.local/bin
-make install       # ScreenGrab.app   -> /Applications (needs xcodegen and shark, see below)
+make install       # PNGuin.app   -> /Applications (needs xcodegen and shark, see below)
 ```
 
 `make help` lists all targets. The app project is generated with [XcodeGen](https://github.com/yonaskolb/XcodeGen)
@@ -65,7 +65,7 @@ into `App/Config/Local.xcconfig` (`DEVELOPMENT_TEAM = …`).
   also apply to the preview, so a copied or dragged preview looks exactly like a saved capture. The clean
   status bar is put on the previewed simulator and removed again when you switch away or close the menu;
   status-bar overrides you set yourself are never touched.
-- Previews live in `~/Library/Caches/ScreenGrab` and never end up in your screenshot folder.
+- Previews live in `~/Library/Caches/PNGuin` and never end up in your screenshot folder.
 - English and German.
 
 The app polls only while its menu is open, so it costs nothing in the background.
@@ -106,7 +106,7 @@ is meant.
 ## How it works
 
 `xcrun devicectl list devices` lists every paired device, whether it is nearby or not, and its
-`tunnelState` only reflects the most recently used tunnel. ScreenGrab therefore probes each device with
+`tunnelState` only reflects the most recently used tunnel. PNGuin therefore probes each device with
 `devicectl device info lockState` (about 0.6 s, one device at a time, 5 s timeout): success with
 `passcodeRequired: false` means *ready*, a passcode requirement or CoreDevice error 10003 means *locked*,
 anything else *unreachable*. Screenshots use `devicectl device capture screenshot`, about 0.7 s each.
@@ -127,12 +127,12 @@ defensively and covered by fixture tests.
 ## Development
 
 ```sh
-make test      # ScreenGrabKit unit tests
+make test      # PNGuinKit unit tests
 make build     # generate the Xcode project and build the app
 make run       # build and launch with trace logging
 ```
 
-Layout: `Sources/ScreenGrabKit` (UI-free core), `Sources/iphone-screenshot` (CLI), `App/` (SwiftUI menu-bar
+Layout: `Sources/PNGuinKit` (UI-free core), `Sources/iphone-screenshot` (CLI), `App/` (SwiftUI menu-bar
 app). See [PLAN.md](PLAN.md) for the design notes and [HIG.md](HIG.md) for the UI tokens.
 
 ## License

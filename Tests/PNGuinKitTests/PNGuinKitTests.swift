@@ -1,7 +1,7 @@
 import CoreGraphics
 import Foundation
 import Testing
-@testable import ScreenGrabKit
+@testable import PNGuinKit
 
 private let simulatorFixture = """
 {"devicetypes":[

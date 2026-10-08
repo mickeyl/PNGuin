@@ -1,6 +1,6 @@
 import ArgumentParser
 import Foundation
-import ScreenGrabKit
+import PNGuinKit
 
 @main
 struct IPhoneScreenshot: AsyncParsableCommand {

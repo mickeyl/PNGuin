@@ -1,4 +1,4 @@
-name: ScreenGrab
+name: PNGuin
 options:
   bundleIdPrefix: de.vanille
   deploymentTarget:
@@ -8,7 +8,7 @@ options:
   generateEmptyDirectories: true
 
 packages:
-  ScreenGrab:
+  PNGuin:
     path: ..
   CornucopiaCore:
     url: https://github.com/Cornucopia-Swift/CornucopiaCore
@@ -19,23 +19,23 @@ configFiles:
   Release: Config/Base.xcconfig
 
 targets:
-  ScreenGrab:
+  PNGuin:
     type: application
     platform: macOS
     configFiles:
-      Debug: Config/ScreenGrab.xcconfig
-      Release: Config/ScreenGrab.xcconfig
+      Debug: Config/PNGuin.xcconfig
+      Release: Config/PNGuin.xcconfig
     sources:
-      - path: ScreenGrab
+      - path: PNGuin
     dependencies:
-      - package: ScreenGrab
-        product: ScreenGrabKit
+      - package: PNGuin
+        product: PNGuinKit
       - package: CornucopiaCore
         product: CornucopiaCore
     info:
-      path: ScreenGrab/Resources/Info.plist
+      path: PNGuin/Resources/Info.plist
       properties:
-        CFBundleDisplayName: ScreenGrab
+        CFBundleDisplayName: PNGuin
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSUIElement: true
@@ -44,6 +44,7 @@ targets:
         NSHumanReadableCopyright: ""
     settings:
       base:
+        # The app was called ScreenGrab first; keeping its identifier keeps the users' settings and usage history.
         PRODUCT_BUNDLE_IDENTIFIER: de.vanille.ScreenGrab
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     preBuildScripts:
@@ -51,9 +52,9 @@ targets:
         basedOnDependencyAnalysis: false
         script: |
           unset SDKROOT
-          /opt/homebrew/bin/shark "$PROJECT_FILE_PATH" "$PROJECT_DIR/ScreenGrab/Resources/Shark.swift" --target ScreenGrab --framework swiftui --name R --deps /tmp/deps-screengrab.d
+          /opt/homebrew/bin/shark "$PROJECT_FILE_PATH" "$PROJECT_DIR/PNGuin/Resources/Shark.swift" --target PNGuin --framework swiftui --name R --deps /tmp/deps-pnguin.d
         outputFiles:
-          - $(SRCROOT)/ScreenGrab/Resources/Shark.swift
+          - $(SRCROOT)/PNGuin/Resources/Shark.swift
     postCompileScripts:
       - name: Stamp build number from git
         basedOnDependencyAnalysis: false

@@ -2,7 +2,7 @@
 "DeviceMenuView_EMPTY_HINT" = "Pair an iPhone or iPad in Xcode, then connect it.";
 "DeviceMenuView_SCANNING" = "Searching for devices…";
 "DeviceMenuView_SETTINGS" = "Settings";
-"DeviceMenuView_QUIT" = "Quit ScreenGrab";
+"DeviceMenuView_QUIT" = "Quit PNGuin";
 "DeviceRow_STATE_UNKNOWN" = "Checking…";
 "DeviceRow_STATE_READY" = "Ready";
 "DeviceRow_STATE_LOCKED" = "Locked";

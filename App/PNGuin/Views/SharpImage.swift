@@ -1,6 +1,6 @@
 import AppKit
 import SwiftUI
-import ScreenGrabKit
+import PNGuinKit
 
 /// Shows `image` scaled to fit, but rendered from a Lanczos-downsampled copy that matches the backing pixels exactly.
 /// Callers keep `image` itself for copying and exporting.

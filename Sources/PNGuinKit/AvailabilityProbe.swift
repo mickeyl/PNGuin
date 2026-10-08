@@ -18,7 +18,7 @@ enum AvailabilityProbe {
     }
 
     static func probe(udid: String) async -> Device.Availability {
-        let file = FileManager.default.temporaryDirectory.appendingPathComponent("screengrab-lock-\(UUID().uuidString).json")
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("pnguin-lock-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: file) }
 
         guard let output = try? await Devicectl.run(["device", "info", "lockState", "--device", udid, "--timeout", "5", "--quiet", "--json-output", file.path]) else {

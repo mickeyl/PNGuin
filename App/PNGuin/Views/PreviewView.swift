@@ -1,5 +1,5 @@
 import SwiftUI
-import ScreenGrabKit
+import PNGuinKit
 
 struct PreviewView: View {
 

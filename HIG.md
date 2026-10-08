@@ -1,6 +1,6 @@
-# ScreenGrab – Design Notes
+# PNGuin – Design Notes
 
-Source of truth in code: `App/ScreenGrab/Theme/Theme.swift`.
+Source of truth in code: `App/PNGuin/Theme/Theme.swift`.
 
 ## Appearance
 Light, Dark and System (the app follows the system; no manual selector). Only semantic system
@@ -31,7 +31,7 @@ header icon 32.
 - Row tap = select device (loads its preview); camera button = save a screenshot.
 - Settings end with a "Simulators" group: clean status bar (9:41) and rounded, transparent corners
   (both off by default; they also apply to the preview).
-- Preview is captured into `~/Library/Caches/ScreenGrab/previews`, never into the output folder.
+- Preview is captured into `~/Library/Caches/PNGuin/previews`, never into the output folder.
 - Preview is shown Lanczos-downsampled to its exact backing pixels (`SharpImage`); click copies it
   ("Copied" badge), drag exports a PNG named like a regular capture.
 - All user-visible strings live in `en.lproj`/`de.lproj` and are accessed as `R.L.*` (Shark).

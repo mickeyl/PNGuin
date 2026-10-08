@@ -2,7 +2,7 @@ import AppKit
 
 import CornucopiaCore
 import Observation
-import ScreenGrabKit
+import PNGuinKit
 
 private let logger = Cornucopia.Core.Logger()
 

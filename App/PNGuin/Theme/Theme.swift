@@ -1,5 +1,5 @@
 import SwiftUI
-import ScreenGrabKit
+import PNGuinKit
 
 enum Metrics {
     static let popoverWidth: CGFloat = 340

@@ -31,7 +31,7 @@ overrides show up in the very next screenshot, no delay needed.
 - simctl talks to CoreSimulator, not CoreDevice; the CoreDevice wedge (see CLAUDE.md) should not apply.
   To verify: simctl calls while devicectl probes run.
 
-## Core (ScreenGrabKit)
+## Core (PNGuinKit)
 
 - `Device` gains `source: Source` (`.physical`, `.simulator`); Codable output gains a `source` field
   (additive, so existing JSON consumers keep working). Booted simulators are always `.ready`.

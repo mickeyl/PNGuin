@@ -4,7 +4,7 @@ public enum DeviceCenter {
 
     /// Physical iPhones and iPads known to CoreDevice, sorted by name; availability is `.unknown`.
     public static func devices() async throws -> [Device] {
-        let file = FileManager.default.temporaryDirectory.appendingPathComponent("screengrab-devices-\(UUID().uuidString).json")
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("pnguin-devices-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: file) }
 
         let output = try await Devicectl.run(["list", "devices", "--quiet", "--json-output", file.path])
