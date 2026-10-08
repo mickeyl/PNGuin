@@ -16,85 +16,125 @@ final class AppModel {
         case unavailable(Device.Availability)
     }
 
-    private static let deviceRefreshInterval: Duration = .seconds(5)
+    /// What the current preview was captured with; a change (another device, a toggled option) calls for a new capture.
+    private struct PreviewKey: Equatable {
+        let udid: String
+        let maskCorners: Bool
+        let cleanStatusBar: Bool
+    }
+
+    private static let simulatorRefreshInterval: Duration = .seconds(2)
     private static let previewPollInterval: Duration = .milliseconds(300)
 
     let settings = AppSettings()
 
-    private(set) var devices: [Device] = []
-    private(set) var hasScanned = false
+    private(set) var source: Device.Source
+    private(set) var lists: [Device.Source: [Device]] = [:]
+    private(set) var scanned: Set<Device.Source> = []
     private(set) var capturing: Set<String> = []
     private(set) var preview: PreviewState = .none
     private(set) var lastCapture: CaptureRecord?
     var errorMessage: String?
 
-    private(set) var selectedUDID: String? {
-        didSet {
-            guard selectedUDID != oldValue else { return }
-            showCachedPreview()
-        }
-    }
+    private var selections: [Device.Source: String] = [:]
 
     // Until the user picks a row, the selection follows the best device, which is only known once probing has finished.
-    @ObservationIgnored private var selectionIsManual = false
+    @ObservationIgnored private var manualSelections: Set<Device.Source> = []
+    @ObservationIgnored private var monitoring: Task<Void, Never>?
+    @ObservationIgnored private var previewLoadedFor: PreviewKey?
+    @ObservationIgnored private let statusBar = StatusBarKeeper()
 
-    func select(_ device: Device) {
-        selectionIsManual = true
-        selectedUDID = device.udid
+    init() {
+        source = settings.source
     }
 
-    @ObservationIgnored private var monitoring: Task<Void, Never>?
-    @ObservationIgnored private var previewLoadedFor: String?
+    var devices: [Device] { lists[source] ?? [] }
+    var hasScanned: Bool { scanned.contains(source) }
+    var selectedUDID: String? { selections[source] }
+    var selectedDevice: Device? { devices.first { $0.udid == selectedUDID } }
+
+    /// Nil until the source has been scanned at least once.
+    func count(of source: Device.Source) -> Int? {
+        scanned.contains(source) ? lists[source]?.count ?? 0 : nil
+    }
+
+    func show(_ newSource: Device.Source) {
+        guard newSource != source else { return }
+        source = newSource
+        settings.source = newSource
+        errorMessage = nil
+        showCachedPreview()
+        guard monitoring != nil else { return }
+        stopMonitoring()
+        startMonitoring()
+    }
+
+    func select(_ device: Device) {
+        manualSelections.insert(device.source)
+        setSelection(device.udid, for: device.source)
+    }
+
+    private func setSelection(_ udid: String?, for source: Device.Source) {
+        guard selections[source] != udid else { return }
+        selections[source] = udid
+        if source == self.source { showCachedPreview() }
+    }
 
     // MARK: Menu visibility
 
     func menuDidOpen() {
         guard monitoring == nil else { return }
         logger.debug("menu opened, start monitoring")
+        startMonitoring()
+    }
+
+    func menuDidClose() {
+        logger.debug("menu closed, stop monitoring")
+        stopMonitoring()
+        Task { await statusBar.hold(nil) }
+    }
+
+    private func startMonitoring() {
         previewLoadedFor = nil
+        let source = source
         monitoring = Task { [weak self] in
             await withTaskGroup(of: Void.self) { group in
-                group.addTask { await self?.deviceLoop() }
+                // Simulators are cheap to list, so they are always polled to keep the segment count current.
+                group.addTask { await self?.simulatorLoop() }
+                if source == .physical { group.addTask { await self?.deviceLoop() } }
                 group.addTask { await self?.previewLoop() }
             }
         }
     }
 
-    func menuDidClose() {
-        logger.debug("menu closed, stop monitoring")
+    private func stopMonitoring() {
         monitoring?.cancel()
         monitoring = nil
     }
 
-    // MARK: Device discovery
+    // MARK: Discovery
 
     private func deviceLoop() async {
         while !Task.isCancelled {
-            await refreshDevices()
-            try? await Task.sleep(for: Self.deviceRefreshInterval)
+            do {
+                try await DeviceMonitor.refresh(current: { lists[.physical] ?? [] }, selected: selections[.physical]) { apply($0, for: .physical) }
+            } catch {
+                logger.error("device refresh failed: \(error)")
+                scanned.insert(.physical)
+            }
+            try? await Task.sleep(for: DeviceMonitor.interval)
         }
     }
 
-    private func refreshDevices() async {
-        do {
-            let listed = try await DeviceCenter.devices()
-            // Keep the last known state so rows don't flash back to "Checking…" while the sequential pass runs.
-            let known = Dictionary(devices.map { ($0.udid, $0.availability) }, uniquingKeysWith: { first, _ in first })
-            apply(listed.map { device in
-                var device = device
-                device.availability = known[device.udid] ?? .unknown
-                return device
-            })
-            // Probes must not overlap (see `DeviceCenter.probed`), so publish each result as it arrives, selected device first.
-            let order = devices.filter { $0.udid == selectedUDID } + devices.filter { $0.udid != selectedUDID }
-            for device in order {
-                let availability = await DeviceCenter.probe(device).availability
-                guard !Task.isCancelled else { return }
-                update(device.udid, to: availability)
+    private func simulatorLoop() async {
+        while !Task.isCancelled {
+            do {
+                apply(try await SimulatorCenter.simulators(), for: .simulator)
+            } catch {
+                logger.error("simulator refresh failed: \(error)")
+                scanned.insert(.simulator)
             }
-        } catch {
-            logger.error("device refresh failed: \(error)")
-            hasScanned = true
+            try? await Task.sleep(for: Self.simulatorRefreshInterval)
         }
     }
 
@@ -105,31 +145,23 @@ final class AppModel {
         }
     }
 
-    private func apply(_ listed: [Device]) {
+    private func apply(_ listed: [Device], for source: Device.Source) {
         let newDevices = sorted(listed)
-        devices = newDevices
-        hasScanned = true
-        let selectionStillValid = newDevices.contains { $0.udid == selectedUDID }
-        guard !selectionIsManual || !selectionStillValid else { return }
-        selectionIsManual = false
+        guard newDevices != lists[source] || !scanned.contains(source) else { return }
+        lists[source] = newDevices
+        scanned.insert(source)
+
+        let selectionStillValid = newDevices.contains { $0.udid == selections[source] }
+        guard !manualSelections.contains(source) || !selectionStillValid else { return }
+        manualSelections.remove(source)
         // The best device is the most recently used ready one. A more recent device still being probed might beat it,
         // so only commit once nothing ahead of it is pending; otherwise the selection hops while probes come in.
         let candidates = newDevices.prefix { !$0.isReady }
         let best = newDevices.first(where: \.isReady) ?? newDevices.first
         let bestIsSettled = !candidates.contains { $0.availability == .unknown }
         guard bestIsSettled || !selectionStillValid else { return }
-        selectedUDID = best?.udid
+        setSelection(best?.udid, for: source)
     }
-
-    private func update(_ udid: String, to availability: Device.Availability) {
-        guard let index = devices.firstIndex(where: { $0.udid == udid }), devices[index].availability != availability else { return }
-        logger.debug("\(devices[index].name): \(devices[index].availability.rawValue) -> \(availability.rawValue)")
-        var updated = devices
-        updated[index].availability = availability
-        apply(updated)
-    }
-
-    var selectedDevice: Device? { devices.first { $0.udid == selectedUDID } }
 
     // MARK: Preview
 
@@ -173,17 +205,20 @@ final class AppModel {
     }
 
     private func refreshPreviewIfNeeded() async {
-        guard let device = selectedDevice else { return }
+        // Copy and drag hand out the preview, so it is captured exactly like a saved screenshot would be.
+        await statusBar.hold(source == .simulator && settings.cleanStatusBar ? selectedUDID : nil)
+        guard !Task.isCancelled, let device = selectedDevice else { return }
         guard device.isReady else {
             if device.availability != .unknown { preview = .unavailable(device.availability) }
             return
         }
-        guard settings.autoRefreshPreview || previewLoadedFor != device.udid else { return }
+        let key = PreviewKey(udid: device.udid, maskCorners: maskCorners(for: device), cleanStatusBar: statusBar.held == device.udid)
+        guard settings.autoRefreshPreview || previewLoadedFor != key else { return }
 
         if case .image = preview {} else { preview = .loading }
-        previewLoadedFor = device.udid
+        previewLoadedFor = key
         do {
-            let url = try await PreviewCache.capture(udid: device.udid)
+            let url = try await PreviewCache.capture(device, maskCorners: key.maskCorners)
             guard !Task.isCancelled, selectedUDID == device.udid, let image = NSImage(contentsOf: url) else { return }
             preview = .image(image)
         } catch {
@@ -191,6 +226,10 @@ final class AppModel {
             guard selectedUDID == device.udid else { return }
             if case .image = preview {} else { preview = .unavailable(.unreachable) }
         }
+    }
+
+    private func maskCorners(for device: Device) -> Bool {
+        device.source == .simulator && settings.maskCorners
     }
 
     // MARK: Capture
@@ -202,8 +241,16 @@ final class AppModel {
         errorMessage = nil
 
         let destination = OutputLocation.uniqueURL(directory: settings.outputDirectory, name: OutputLocation.fileName())
+        let maskCorners = maskCorners(for: device)
         do {
-            try await Screenshotter.capture(udid: device.udid, to: destination)
+            // The previewed simulator already carries the clean status bar; any other one gets it just for this capture.
+            if device.source == .simulator, settings.cleanStatusBar, statusBar.held != device.udid {
+                _ = try await StatusBar.withClean(udid: device.udid) {
+                    try await Screenshotter.capture(device, to: destination, maskCorners: maskCorners)
+                }
+            } else {
+                try await Screenshotter.capture(device, to: destination, maskCorners: maskCorners)
+            }
             guard let image = NSImage(contentsOf: destination) else { return }
             settings.markUsed(device.udid)
             lastCapture = CaptureRecord(url: destination, image: image, deviceName: device.name)

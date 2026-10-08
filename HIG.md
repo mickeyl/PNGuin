@@ -17,13 +17,20 @@ colours are used: `.primary`/`.secondary` text, `Color.accentColor` selection ti
 
 ## Metrics (`Metrics`)
 Popover width 340, inset 12, row gap 8, section gap 12, row height 44, icon column 28
-(symbol right-aligned, text left-aligned), preview height 320 (corner radius 14), thumbnail 44.
+(symbol right-aligned, text left-aligned), preview height 320 (corner radius 14), thumbnail 44,
+header icon 32.
 
 ## Behaviour
 - The popover is the only UI (`LSUIElement`, no Dock icon, no windows).
 - Rows are ordered by most recent use (saved screenshot, or preview copied/dragged), then by name;
   availability does not reorder them. Until the user picks a row, the most recently used ready device is selected.
+- The app icon (32 pt, decorative) sits at the trailing edge of the header row.
+- A segmented control (Devices | Simulators, with counts once scanned) sits above the rows; the last
+  tab and each tab's selection are remembered. Simulators with none running show a hint and an
+  "Open Simulator" button.
 - Row tap = select device (loads its preview); camera button = save a screenshot.
+- Settings end with a "Simulators" group: clean status bar (9:41) and rounded, transparent corners
+  (both off by default; they also apply to the preview).
 - Preview is captured into `~/Library/Caches/ScreenGrab/previews`, never into the output folder.
 - Preview is shown Lanczos-downsampled to its exact backing pixels (`SharpImage`); click copies it
   ("Copied" badge), drag exports a PNG named like a regular capture.

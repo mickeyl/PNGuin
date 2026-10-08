@@ -20,6 +20,11 @@ struct SettingsView: View {
             Toggle(R.L.SettingsView_COPY_TO_CLIPBOARD, isOn: $settings.copyToClipboard)
             Toggle(R.L.SettingsView_AUTO_REFRESH, isOn: $settings.autoRefreshPreview)
             Toggle(R.L.SettingsView_LAUNCH_AT_LOGIN, isOn: $settings.launchAtLogin)
+            Text(R.L.SettingsView_SIMULATORS)
+                .foregroundStyle(.secondary)
+                .padding(.top, Metrics.rowGap / 2)
+            Toggle(R.L.SettingsView_CLEAN_STATUS_BAR, isOn: $settings.cleanStatusBar)
+            Toggle(R.L.SettingsView_MASK_CORNERS, isOn: $settings.maskCorners)
         }
         .font(.fieldLabel)
     }

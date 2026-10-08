@@ -11,6 +11,9 @@ final class AppSettings {
         static let copyToClipboard = "copyToClipboard"
         static let autoRefreshPreview = "autoRefreshPreview"
         static let lastUsed = "lastUsedByUDID"
+        static let source = "source"
+        static let cleanStatusBar = "cleanStatusBar"
+        static let maskCorners = "maskCorners"
     }
 
     private let defaults = UserDefaults.standard
@@ -25,6 +28,20 @@ final class AppSettings {
 
     var autoRefreshPreview: Bool {
         didSet { defaults.set(autoRefreshPreview, forKey: Key.autoRefreshPreview) }
+    }
+
+    var source: Device.Source {
+        didSet { defaults.set(source.rawValue, forKey: Key.source) }
+    }
+
+    /// Simulators only: the classic 9:41 status bar, applied while a simulator is previewed or captured.
+    var cleanStatusBar: Bool {
+        didSet { defaults.set(cleanStatusBar, forKey: Key.cleanStatusBar) }
+    }
+
+    /// Simulators only: transparent rounded corners.
+    var maskCorners: Bool {
+        didSet { defaults.set(maskCorners, forKey: Key.maskCorners) }
     }
 
     private(set) var lastUsed: [String: Date] {
@@ -53,6 +70,9 @@ final class AppSettings {
         outputDirectory = defaults.string(forKey: Key.outputDirectory).map { URL(fileURLWithPath: $0, isDirectory: true) } ?? OutputLocation.defaultDirectory
         copyToClipboard = defaults.object(forKey: Key.copyToClipboard) as? Bool ?? true
         autoRefreshPreview = defaults.bool(forKey: Key.autoRefreshPreview)
+        source = defaults.string(forKey: Key.source).flatMap(Device.Source.init(rawValue:)) ?? .physical
+        cleanStatusBar = defaults.bool(forKey: Key.cleanStatusBar)
+        maskCorners = defaults.bool(forKey: Key.maskCorners)
         lastUsed = (defaults.dictionary(forKey: Key.lastUsed) as? [String: TimeInterval] ?? [:]).mapValues(Date.init(timeIntervalSince1970:))
         launchAtLogin = SMAppService.mainApp.status == .enabled
     }

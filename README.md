@@ -13,12 +13,14 @@ ScreenGrab is two things built on the same core:
 
 - **A menu-bar app** that lists your paired iPhones and iPads with their state (ready, locked, not
   reachable), shows a preview of the selected device the moment you open the menu, and saves a
-  screenshot with one click.
+  screenshot with one click. Running iPhone and iPad simulators sit in a second tab, with an optional
+  9:41 status bar and transparent rounded corners.
 - **`iphone-screenshot`, a CLI** that prints the path of the captured PNG and uses meaningful exit
   codes. It is made for scripts and for AI agents: *"take a screenshot of my iPhone and have a look"*.
 
 <p align="center">
   <img src="assets/menu-screenshot.png" alt="The ScreenGrab menu: paired devices with their state and a live preview of the selected iPhone" width="386">
+  <img src="assets/menu-simulators.png" alt="The Simulators tab: running iPhone and iPad simulators with a live preview of the selected iPad" width="386">
 </p>
 
 ## Requirements
@@ -52,10 +54,17 @@ into `App/Config/Local.xcconfig` (`DEVELOPMENT_TEAM = …`).
 
 - Open the menu: devices appear immediately, readiness is checked one device at a time (selected device first), and a preview of the
   most recently used ready device is captured and shown within a second.
+- Switch between *Devices* and *Simulators* at the top; each tab shows how many it has and remembers its selection.
 - Click a row to preview another device; click the camera button to save a screenshot.
+- Click the preview to copy it, or drag it into another app (it arrives as a PNG named like a saved capture).
+- Rows are ordered by most recent use (a saved screenshot, or a copied or dragged preview).
 - After a capture you get a thumbnail with *Show in Finder*, *Copy* and *Open*.
 - Settings: output folder (default `~/Desktop`), copy to clipboard, continuous preview refresh
-  (about one frame per second while the menu is open – off by default, it keeps the phone busy), launch at login.
+  (about one frame per second while the menu is open – off by default, it keeps the phone busy), launch at login,
+  and for simulators: a clean status bar (9:41, full battery and bars) and transparent rounded corners. Both
+  also apply to the preview, so a copied or dragged preview looks exactly like a saved capture. The clean
+  status bar is put on the previewed simulator and removed again when you switch away or close the menu;
+  status-bar overrides you set yourself are never touched.
 - Previews live in `~/Library/Caches/ScreenGrab` and never end up in your screenshot folder.
 - English and German.
 
@@ -69,6 +78,9 @@ iphone-screenshot --device "My iPhone"      # by name or UDID
 iphone-screenshot --output-dir /tmp --name home.png
 iphone-screenshot list                      # name, udid, ready|locked|unreachable, os (TSV)
 iphone-screenshot list --json
+iphone-screenshot --simulator               # the only running iPhone/iPad simulator
+iphone-screenshot --simulator --device "iPhone 18 Pro" --clean-status-bar --mask-corners
+iphone-screenshot list --simulators         # running simulators (always ready)
 ```
 
 On success the only line on stdout is the path of the PNG. Errors go to stderr.
@@ -77,12 +89,12 @@ On success the only line on stdout is the path of the PNG. Errors go to stderr.
 | --- | --- |
 | 0 | Screenshot saved |
 | 1 | Capture failed (see stderr) |
-| 2 | Usage error |
-| 3 | Device not found, or several devices are ready and none was chosen |
+| 3 | Device or simulator not found or not running, or several are ready and none was chosen |
 | 4 | Device is locked – unlock it and retry |
-| 127 | `devicectl` not found (Xcode 27+ required) |
+| 64 | Usage error |
+| 127 | Xcode tools not found (Xcode 27+ required) |
 
-`$IPHONE_SCREENSHOT_DEVICE_NAME` sets a default device. `list --no-probe` returns instantly without
+`$IPHONE_SCREENSHOT_DEVICE_NAME` sets a default (physical) device. `list --no-probe` returns instantly without
 checking readiness.
 
 ### Using it from an AI agent
@@ -98,6 +110,9 @@ is meant.
 `devicectl device info lockState` (about 0.6 s, one device at a time, 5 s timeout): success with
 `passcodeRequired: false` means *ready*, a passcode requirement or CoreDevice error 10003 means *locked*,
 anything else *unreachable*. Screenshots use `devicectl device capture screenshot`, about 0.7 s each.
+
+Simulators come from `xcrun simctl list -j` (booted iPhones and iPads only) and are captured with
+`simctl io <udid> screenshot`, also about 0.7 s; the clean status bar is `simctl status_bar … override`.
 
 `devicectl` offers no event stream, so there is no true live video; the optional continuous preview
 simply takes screenshots in a loop. The `devicectl` JSON is not a documented contract, so it is parsed

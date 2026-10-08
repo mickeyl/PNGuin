@@ -12,12 +12,12 @@ public enum PreviewCache {
         directory.appendingPathComponent("\(udid).png")
     }
 
-    public static func capture(udid: String) async throws -> URL {
-        let target = url(for: udid)
-        let staging = directory.appendingPathComponent("\(udid)-\(UUID().uuidString).png")
+    public static func capture(_ device: Device, maskCorners: Bool = false) async throws -> URL {
+        let target = url(for: device.udid)
+        let staging = directory.appendingPathComponent("\(device.udid)-\(UUID().uuidString).png")
         defer { try? FileManager.default.removeItem(at: staging) }
 
-        try await Screenshotter.capture(udid: udid, to: staging)
+        try await Screenshotter.capture(device, to: staging, maskCorners: maskCorners)
         if FileManager.default.fileExists(atPath: target.path) {
             _ = try FileManager.default.replaceItemAt(target, withItemAt: staging)
         } else {

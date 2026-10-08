@@ -26,3 +26,13 @@
 "SettingsView_LAUNCH_AT_LOGIN" = "Launch at login";
 "AppModel_ERROR_LOCKED" = "The device is locked. Unlock it and try again.";
 "AppModel_ERROR_FAILED" = "Screenshot failed: %@";
+"SourcePicker_DEVICES" = "Devices";
+"SourcePicker_DEVICES_COUNT" = "Devices (%d)";
+"SourcePicker_SIMULATORS" = "Simulators";
+"SourcePicker_SIMULATORS_COUNT" = "Simulators (%d)";
+"EmptyStateView_NO_SIMULATORS_TITLE" = "No simulator running";
+"EmptyStateView_NO_SIMULATORS_HINT" = "Boot an iPhone or iPad simulator to capture it here.";
+"EmptyStateView_OPEN_SIMULATOR" = "Open Simulator";
+"SettingsView_SIMULATORS" = "Simulators";
+"SettingsView_CLEAN_STATUS_BAR" = "Clean status bar (9:41)";
+"SettingsView_MASK_CORNERS" = "Rounded, transparent corners";

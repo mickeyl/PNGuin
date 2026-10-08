@@ -3,6 +3,32 @@ import Foundation
 import Testing
 @testable import ScreenGrabKit
 
+private let simulatorFixture = """
+{"devicetypes":[
+  {"identifier":"com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro","productFamily":"iPhone","name":"iPhone 18 Pro"},
+  {"identifier":"com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M5","productFamily":"iPad","name":"iPad Pro 11-inch (M5)"},
+  {"identifier":"com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-11-46mm","productFamily":"Apple Watch","name":"Apple Watch Series 11 (46mm)"}
+ ],
+ "runtimes":[
+  {"identifier":"com.apple.CoreSimulator.SimRuntime.iOS-27-0","platform":"iOS","version":"27.0"},
+  {"identifier":"com.apple.CoreSimulator.SimRuntime.watchOS-27-0","platform":"watchOS","version":"27.0"}
+ ],
+ "devices":{
+  "com.apple.CoreSimulator.SimRuntime.iOS-27-0":[
+   {"udid":"S-PHONE","name":"iPhone 18 Pro","state":"Booted","isAvailable":true,"deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro"},
+   {"udid":"S-PAD","name":"iPad Pro 11-inch (M5)","state":"Booted","isAvailable":true,"deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M5"},
+   {"udid":"S-OFF","name":"iPhone 18 Pro","state":"Shutdown","isAvailable":true,"deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro"},
+   {"udid":"S-GONE","name":"iPhone 18 Pro","state":"Booted","isAvailable":false,"deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro"}
+  ],
+  "com.apple.CoreSimulator.SimRuntime.iOS-26-4":[
+   {"udid":"S-OLD","name":"iPhone 15","state":"Booted","isAvailable":true,"deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.iPhone-15"}
+  ],
+  "com.apple.CoreSimulator.SimRuntime.watchOS-27-0":[
+   {"udid":"S-WATCH","name":"Apple Watch Series 11 (46mm)","state":"Booted","isAvailable":true,"deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-11-46mm"}
+  ]
+ }}
+"""
+
 private let fixture = """
 {"result":{"devices":[
  {"deviceProperties":{"name":"Alpha","osVersionNumber":"27.0.1"},
@@ -160,5 +186,46 @@ private let fixture = """
         let context = try #require(CGContext(data: nil, width: 4, height: 4, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
         let source = try #require(context.makeImage())
         #expect(await ImageScaler.scaled(source, width: 0, height: 10) == nil)
+    }
+}
+
+@Suite struct SimulatorListTests {
+
+    private func parsed() throws -> [String: Device] {
+        let devices = try SimulatorList.parse(Data(simulatorFixture.utf8))
+        return Dictionary(uniqueKeysWithValues: devices.map { ($0.udid, $0) })
+    }
+
+    @Test func keepsBootedPhonesAndPads() throws {
+        let devices = try parsed()
+        #expect(Set(devices.keys) == ["S-PHONE", "S-PAD", "S-OLD"])
+        #expect(devices["S-PHONE"]?.kind == .iPhone)
+        #expect(devices["S-PAD"]?.kind == .iPad)
+        #expect(devices.values.allSatisfy { $0.source == .simulator && $0.isReady })
+    }
+
+    @Test func versionFallsBackToRuntimeIdentifier() throws {
+        #expect(try parsed()["S-PHONE"]?.osVersion == "27.0")
+        #expect(try parsed()["S-OLD"]?.osVersion == "26.4")
+    }
+
+    @Test func rejectsUnknownSchema() {
+        #expect(throws: CaptureError.self) { try SimulatorList.parse(Data(#"{"simulators":[]}"#.utf8)) }
+    }
+}
+
+@Suite struct StatusBarTests {
+
+    @Test func headerOnlyMeansNoOverrides() {
+        #expect(!StatusBar.listShowsOverrides("Current Status Bar Overrides:\n=============================\n"))
+    }
+
+    @Test func detectsOverrides() {
+        #expect(StatusBar.listShowsOverrides("Current Status Bar Overrides:\n=============================\nTime: 09:41\n"))
+    }
+
+    @Test func shutdownSimulatorIsNotBooted() {
+        #expect(CaptureError.classify(output: "Unable to lookup in current state: Shutdown") == .notBooted)
+        #expect(CaptureError.classify(output: "Timeout waiting for screen surfaces") == .notBooted)
     }
 }

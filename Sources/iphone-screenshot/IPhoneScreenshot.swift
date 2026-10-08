@@ -7,12 +7,12 @@ struct IPhoneScreenshot: AsyncParsableCommand {
 
     static let configuration = CommandConfiguration(
         commandName: "iphone-screenshot",
-        abstract: "Capture screenshots from attached iPhones and iPads.",
+        abstract: "Capture screenshots from attached iPhones and iPads, or from running simulators.",
         discussion: """
-            Uses `xcrun devicectl` (Xcode 27 or later); no tunnel daemon or sudo needed.
+            Uses `xcrun devicectl` and `xcrun simctl` (Xcode 27 or later); no tunnel daemon or sudo needed.
 
-            Exit codes: 0 ok, 1 capture failed, 2 usage, 3 device not found or ambiguous,
-            4 device locked, 127 devicectl missing.
+            Exit codes: 0 ok, 1 capture failed, 3 device/simulator not found, ambiguous or not running,
+            4 device locked, 64 usage, 127 Xcode missing.
             """,
         version: "0.1.3",
         subcommands: [Capture.self, List.self],
@@ -30,8 +30,8 @@ extension CaptureError {
 
     var exitCode: ExitCode {
         switch self {
-            case .devicectlMissing: ExitCode(127)
-            case .notFound, .noDevice, .ambiguous: ExitCode(3)
+            case .xcodeMissing: ExitCode(127)
+            case .notFound, .noDevice, .noSimulator, .notBooted, .ambiguous: ExitCode(3)
             case .locked: ExitCode(4)
             case .developerDiskImage, .unexpectedOutput, .failed: ExitCode(1)
         }

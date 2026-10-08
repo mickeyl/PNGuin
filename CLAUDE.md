@@ -23,6 +23,13 @@ design, HIG.md for UI tokens, `make help` for commands.
   (`WindowVisibilityObserver`), because `onAppear` is unreliable for window-style MenuBarExtra.
 - The app must stay unsandboxed (launches `xcrun`).
 - The `devicectl` JSON is not a documented contract: parse defensively and keep fixture tests.
+- Simulators: `simctl list -j` (booted, iOS runtime, productFamily iPhone/iPad), `simctl io … screenshot`
+  with an explicit `--mask` (`ignored` matches device captures; no flag already gives alpha corners).
+  A screenshot of a simulator that shut down hangs ~60 s, hence the 10 s `Simctl.timeout`. simctl
+  polling does not disturb CoreDevice (measured).
+- Clean status bar: `StatusBarKeeper` holds it on the previewed simulator (not per frame: flicker),
+  clears only what it applied (persisted for crash recovery); a `status_bar list` with entries we did
+  not set means the user's own overrides, which are left alone. `--batteryState charged` shows a bolt.
 - `Package.resolved` holds the app's pins too (xcodebuild writes them there); plain `swift build/test`
   prunes them, so use the Makefile targets (`--force-resolved-versions`).
 - Comments/commits in English, no co-author trailers.

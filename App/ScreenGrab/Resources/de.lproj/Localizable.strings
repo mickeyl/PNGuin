@@ -26,3 +26,13 @@
 "SettingsView_LAUNCH_AT_LOGIN" = "Beim Anmelden starten";
 "AppModel_ERROR_LOCKED" = "Das Gerät ist gesperrt. Entsperre es und versuche es erneut.";
 "AppModel_ERROR_FAILED" = "Screenshot fehlgeschlagen: %@";
+"SourcePicker_DEVICES" = "Geräte";
+"SourcePicker_DEVICES_COUNT" = "Geräte (%d)";
+"SourcePicker_SIMULATORS" = "Simulatoren";
+"SourcePicker_SIMULATORS_COUNT" = "Simulatoren (%d)";
+"EmptyStateView_NO_SIMULATORS_TITLE" = "Kein Simulator gestartet";
+"EmptyStateView_NO_SIMULATORS_HINT" = "Starte einen iPhone- oder iPad-Simulator, um ihn hier aufzunehmen.";
+"EmptyStateView_OPEN_SIMULATOR" = "Simulator öffnen";
+"SettingsView_SIMULATORS" = "Simulatoren";
+"SettingsView_CLEAN_STATUS_BAR" = "Saubere Statusleiste (9:41)";
+"SettingsView_MASK_CORNERS" = "Abgerundete, transparente Ecken";

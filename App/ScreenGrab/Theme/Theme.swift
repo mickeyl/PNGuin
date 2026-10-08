@@ -11,6 +11,8 @@ enum Metrics {
     static let previewHeight: CGFloat = 320
     static let previewCornerRadius: CGFloat = 14
     static let thumbnailHeight: CGFloat = 44
+    /// The icon canvas has a built-in margin, so 32 pt shows a squircle about as tall as the segmented control.
+    static let headerIconSize: CGFloat = 32
 }
 
 extension Font {

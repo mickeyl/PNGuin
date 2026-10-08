@@ -1,5 +1,7 @@
 # ScreenGrab – Implementation Plan
 
+Simulator support (0.9.0) is planned in [SIMULATORS.md](SIMULATORS.md).
+
 Menu-bar app + CLI to list attached iPhones/iPads and capture their screens.
 A skill/AI agent calls the same CLI ("take a screenshot of the iPhone and look at it").
 

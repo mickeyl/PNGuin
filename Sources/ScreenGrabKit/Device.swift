@@ -7,6 +7,11 @@ public struct Device: Sendable, Equatable, Codable, Identifiable {
         case iPad
     }
 
+    public enum Source: String, Sendable, Codable, CaseIterable {
+        case physical
+        case simulator
+    }
+
     /// CoreDevice lists every paired device regardless of reachability, so this is only known after probing.
     public enum Availability: String, Sendable, Codable {
         case unknown
@@ -19,16 +24,18 @@ public struct Device: Sendable, Equatable, Codable, Identifiable {
     public let udid: String
     public let kind: Kind
     public let osVersion: String?
+    public let source: Source
     public var availability: Availability
 
     public var id: String { udid }
     public var isReady: Bool { availability == .ready }
 
-    public init(name: String, udid: String, kind: Kind, osVersion: String?, availability: Availability = .unknown) {
+    public init(name: String, udid: String, kind: Kind, osVersion: String?, source: Source = .physical, availability: Availability = .unknown) {
         self.name = name
         self.udid = udid
         self.kind = kind
         self.osVersion = osVersion
+        self.source = source
         self.availability = availability
     }
 }

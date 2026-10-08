@@ -8,6 +8,7 @@ struct DeviceMenuView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.sectionGap) {
+            header
             devices
             if model.selectedDevice != nil {
                 PreviewView(state: model.preview, copy: model.copyPreview, dragItem: model.previewDragItem)
@@ -32,18 +33,23 @@ struct DeviceMenuView: View {
         })
     }
 
+    private var header: some View {
+        HStack(spacing: Metrics.rowGap) {
+            SourcePicker(model: model)
+                .fixedSize()
+            Spacer(minLength: Metrics.rowGap)
+            Image(nsImage: NSApplication.shared.applicationIconImage)
+                .resizable()
+                .interpolation(.high)
+                .frame(width: Metrics.headerIconSize, height: Metrics.headerIconSize)
+                .accessibilityHidden(true)
+        }
+    }
+
     @ViewBuilder
     private var devices: some View {
         if model.devices.isEmpty {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(model.hasScanned ? R.L.DeviceMenuView_EMPTY_TITLE : R.L.DeviceMenuView_SCANNING)
-                    .font(.rowTitle)
-                if model.hasScanned {
-                    Text(R.L.DeviceMenuView_EMPTY_HINT)
-                        .font(.statusNote)
-                        .foregroundStyle(.secondary)
-                }
-            }
+            EmptyStateView(source: model.source, hasScanned: model.hasScanned)
         } else {
             VStack(spacing: Metrics.rowGap / 2) {
                 ForEach(model.devices) { device in
