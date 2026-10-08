@@ -46,7 +46,7 @@ into `App/Config/Local.xcconfig` (`DEVELOPMENT_TEAM = …`).
 
 ## The menu-bar app
 
-- Open the menu: devices appear immediately, readiness is checked in parallel, and a preview of the
+- Open the menu: devices appear immediately, readiness is checked one device at a time (selected device first), and a preview of the
   best device (ready first, then most recently used) is captured and shown within a second.
 - Click a row to preview another device; click the camera button to save a screenshot.
 - After a capture you get a thumbnail with *Show in Finder*, *Copy* and *Open*.
@@ -91,7 +91,7 @@ is meant.
 
 `xcrun devicectl list devices` lists every paired device, whether it is nearby or not, and its
 `tunnelState` only reflects the most recently used tunnel. ScreenGrab therefore probes each device with
-`devicectl device info lockState` (about 0.6 s, in parallel, 5 s timeout): success with
+`devicectl device info lockState` (about 0.6 s, one device at a time, 5 s timeout): success with
 `passcodeRequired: false` means *ready*, a passcode requirement or CoreDevice error 10003 means *locked*,
 anything else *unreachable*. Screenshots use `devicectl device capture screenshot`, about 0.7 s each.
 

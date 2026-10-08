@@ -12,6 +12,9 @@
 "PreviewView_LOCKED" = "Entsperre das Gerät, um eine Vorschau zu sehen.";
 "PreviewView_UNREACHABLE" = "Das Gerät ist nicht erreichbar.";
 "PreviewView_NONE" = "Wähle ein Gerät aus.";
+"PreviewView_HELP" = "Klicken zum Kopieren oder in ein anderes Fenster ziehen.";
+"PreviewView_COPIED" = "Kopiert";
+"PreviewView_ACCESSIBILITY_LABEL" = "Bildschirmvorschau";
 "LastCaptureView_SAVED" = "Gespeichert: %@";
 "LastCaptureView_REVEAL" = "Im Finder zeigen";
 "LastCaptureView_COPY" = "Kopieren";

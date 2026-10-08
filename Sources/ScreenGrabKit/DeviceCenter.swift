@@ -14,16 +14,12 @@ public enum DeviceCenter {
         return try DeviceList.parse(data).sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
-    /// Probes all devices in parallel (~0.6 s for reachable ones, bounded by a 5 s timeout otherwise).
+    /// Probes one device at a time: overlapping probes of several paired (especially wireless) devices wedge
+    /// CoreDevice, after which every devicectl request, captures included, stalls until it times out.
     public static func probed(_ devices: [Device]) async -> [Device] {
-        await withTaskGroup(of: (Int, Device.Availability).self) { group in
-            for (index, device) in devices.enumerated() {
-                group.addTask { (index, await AvailabilityProbe.probe(udid: device.udid)) }
-            }
-            var result = devices
-            for await (index, availability) in group { result[index].availability = availability }
-            return result
-        }
+        var result: [Device] = []
+        for device in devices { result.append(await probe(device)) }
+        return result
     }
 
     public static func probe(_ device: Device) async -> Device {

@@ -25,4 +25,16 @@ public enum PreviewCache {
         }
         return target
     }
+
+    /// Copies the preview under a regular screenshot name, so a drag hands out a sensibly named file.
+    /// Only the latest drag needs its file (drop targets copy it), so older ones are discarded.
+    public static func exportedCopy(udid: String) throws -> URL {
+        let exports = FileManager.default.temporaryDirectory.appendingPathComponent("ScreenGrab-drag", isDirectory: true)
+        try? FileManager.default.removeItem(at: exports)
+        try FileManager.default.createDirectory(at: exports, withIntermediateDirectories: true)
+
+        let target = exports.appendingPathComponent(OutputLocation.fileName())
+        try FileManager.default.copyItem(at: url(for: udid), to: target)
+        return target
+    }
 }

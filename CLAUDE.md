@@ -12,7 +12,12 @@ design, HIG.md for UI tokens, `make help` for commands.
 - `devicectl list devices` includes every paired device; `tunnelState` is only the most recently
   used tunnel. Readiness = `devicectl device info lockState` (success + `passcodeRequired == false`).
 - Locked device -> CoreDevice error 10003; the CLI maps it to exit code 4.
-- Probes run in parallel with a 5 s timeout; the app polls (5 s) only while its panel is key
+- Probes run strictly one at a time (5 s timeout): parallel lockState probes of several paired
+  devices wedge CoreDevice from the second round on, so every request (captures too) times out and
+  a reachable device flips to "unreachable". The app publishes each result as it arrives, selected
+  device first.
+- A preview can be dragged out (as a temp file named like a real capture) or clicked to copy.
+- The app polls (5 s) only while its panel is key
   (`WindowVisibilityObserver`), because `onAppear` is unreliable for window-style MenuBarExtra.
 - The app must stay unsandboxed (launches `xcrun`).
 - The `devicectl` JSON is not a documented contract: parse defensively and keep fixture tests.

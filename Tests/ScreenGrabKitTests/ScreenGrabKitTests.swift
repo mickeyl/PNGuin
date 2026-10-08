@@ -123,3 +123,21 @@ private let fixture = """
         #expect(OutputLocation.uniqueURL(directory: dir, name: "a.png").lastPathComponent == "a-1.png")
     }
 }
+
+@Suite struct PreviewCacheTests {
+
+    @Test func exportedCopyUsesScreenshotName() throws {
+        let udid = "test-\(UUID().uuidString)"
+        let source = PreviewCache.url(for: udid)
+        try FileManager.default.createDirectory(at: PreviewCache.directory, withIntermediateDirectories: true)
+        FileManager.default.createFile(atPath: source.path, contents: Data([1, 2, 3]))
+        defer { try? FileManager.default.removeItem(at: source) }
+
+        let exported = try PreviewCache.exportedCopy(udid: udid)
+        defer { try? FileManager.default.removeItem(at: exported) }
+
+        #expect(exported.lastPathComponent.hasPrefix("iphone-screenshot-"))
+        #expect(try Data(contentsOf: exported) == Data([1, 2, 3]))
+        #expect(FileManager.default.fileExists(atPath: source.path))
+    }
+}

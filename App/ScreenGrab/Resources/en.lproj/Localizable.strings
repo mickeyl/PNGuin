@@ -12,6 +12,9 @@
 "PreviewView_LOCKED" = "Unlock the device to see a preview.";
 "PreviewView_UNREACHABLE" = "The device is not reachable.";
 "PreviewView_NONE" = "Select a device.";
+"PreviewView_HELP" = "Click to copy, or drag into another window.";
+"PreviewView_COPIED" = "Copied";
+"PreviewView_ACCESSIBILITY_LABEL" = "Screen preview";
 "LastCaptureView_SAVED" = "Saved %@";
 "LastCaptureView_REVEAL" = "Show in Finder";
 "LastCaptureView_COPY" = "Copy";

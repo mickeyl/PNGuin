@@ -10,7 +10,7 @@ struct DeviceMenuView: View {
         VStack(alignment: .leading, spacing: Metrics.sectionGap) {
             devices
             if model.selectedDevice != nil {
-                PreviewView(state: model.preview)
+                PreviewView(state: model.preview, copy: model.copyPreview, dragItem: model.previewDragItem)
             }
             if let message = model.errorMessage {
                 Text(message)

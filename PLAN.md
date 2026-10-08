@@ -20,7 +20,7 @@ screenshot`, which needs no tunnel daemon, no sudo and no Python.
   `deviceProperties.name/osVersionNumber`, `hardwareProperties.udid/deviceType/reality`,
   `connectionProperties.*`. All paired devices are listed as available whether or not they are
   nearby; `tunnelState` only reflects the most recently used tunnel and is NOT a readiness signal.
-- `xcrun devicectl device info lockState --device X --json-output f` (~0.6 s, run in parallel for
+- `xcrun devicectl device info lockState --device X --json-output f` (~0.6 s, run sequentially for
   all devices, 5 s timeout) is the readiness probe: success + `passcodeRequired:false` = ready,
   `passcodeRequired:true` or error 10003 = locked, anything else = unreachable.
 - There is no event/subscription interface in `devicectl`; liveness requires polling.
@@ -77,7 +77,7 @@ iphone-screenshot list [--json]
 ```
 
 - `capture` is the default subcommand. stdout: the PNG path only (one line). stderr: errors/hints.
-- `list`: probes all devices in parallel; TSV by default (name, udid, ready|locked|unreachable, os), `--json` for structured output, `--no-probe` for an instant unprobed list.
+- `list`: probes all devices sequentially; TSV by default (name, udid, ready|locked|unreachable, os), `--json` for structured output, `--no-probe` for an instant unprobed list.
 - Device resolution: explicit `--device` (name or UDID, case-insensitive) -> env
   `IPHONE_SCREENSHOT_DEVICE_NAME` -> the only *ready* device (probed) -> error listing candidates.
   (The hard-coded default `M16` goes away; ambiguity is reported instead of guessed.)

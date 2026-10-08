@@ -78,11 +78,20 @@ final class AppModel {
     private func refreshDevices() async {
         do {
             let listed = try await DeviceCenter.devices()
-            // Publish the unprobed list first so the menu fills immediately instead of waiting for the slowest probe.
-            if devices.isEmpty { apply(listed) }
-            let probed = await DeviceCenter.probed(listed)
-            guard !Task.isCancelled else { return }
-            apply(probed)
+            // Keep the last known state so rows don't flash back to "Checking…" while the sequential pass runs.
+            let known = Dictionary(devices.map { ($0.udid, $0.availability) }, uniquingKeysWith: { first, _ in first })
+            apply(listed.map { device in
+                var device = device
+                device.availability = known[device.udid] ?? .unknown
+                return device
+            })
+            // Probes must not overlap (see `DeviceCenter.probed`), so publish each result as it arrives, selected device first.
+            let order = devices.filter { $0.udid == selectedUDID } + devices.filter { $0.udid != selectedUDID }
+            for device in order {
+                let availability = await DeviceCenter.probe(device).availability
+                guard !Task.isCancelled else { return }
+                update(device.udid, to: availability)
+            }
         } catch {
             logger.error("device refresh failed: \(error)")
             hasScanned = true
@@ -109,8 +118,19 @@ final class AppModel {
         hasScanned = true
         let selectionStillValid = newDevices.contains { $0.udid == selectedUDID }
         guard !selectionIsManual || !selectionStillValid else { return }
-        selectionIsManual = selectionIsManual && selectionStillValid
+        selectionIsManual = false
+        // While probes are pending the ranking is provisional; only jump early for a confirmed ready device, so the selection doesn't hop.
+        let rankingSettled = newDevices.first?.isReady == true || !newDevices.contains { $0.availability == .unknown }
+        guard rankingSettled || !selectionStillValid else { return }
         selectedUDID = newDevices.first?.udid
+    }
+
+    private func update(_ udid: String, to availability: Device.Availability) {
+        guard let index = devices.firstIndex(where: { $0.udid == udid }), devices[index].availability != availability else { return }
+        logger.debug("\(devices[index].name): \(devices[index].availability.rawValue) -> \(availability.rawValue)")
+        var updated = devices
+        updated[index].availability = availability
+        apply(updated)
     }
 
     var selectedDevice: Device? { devices.first { $0.udid == selectedUDID } }
@@ -124,6 +144,21 @@ final class AppModel {
             return
         }
         preview = .image(image)
+    }
+
+    func copyPreview() {
+        guard case .image(let image) = preview else { return }
+        copy(image)
+    }
+
+    /// Hands out a file (not just image data), so Finder, Mail, chats etc. all accept the drop.
+    func previewDragItem() -> NSItemProvider {
+        guard
+            let udid = selectedUDID,
+            let url = try? PreviewCache.exportedCopy(udid: udid),
+            let provider = NSItemProvider(contentsOf: url)
+        else { return NSItemProvider() }
+        return provider
     }
 
     private func previewLoop() async {
