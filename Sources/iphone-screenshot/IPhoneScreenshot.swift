@@ -14,7 +14,7 @@ struct IPhoneScreenshot: AsyncParsableCommand {
             Exit codes: 0 ok, 1 capture failed, 2 usage, 3 device not found or ambiguous,
             4 device locked, 127 devicectl missing.
             """,
-        version: "0.1.2",
+        version: "0.1.3",
         subcommands: [Capture.self, List.self],
         defaultSubcommand: Capture.self
     )
