@@ -5,8 +5,8 @@ CODE_SIGN_STYLE = Automatic
 // Signing identity stays out of the repository: put DEVELOPMENT_TEAM into Config/Local.xcconfig.
 #include? "Local.xcconfig"
 
-MARKETING_VERSION = 0.9.0
-CURRENT_PROJECT_VERSION = 5
+MARKETING_VERSION = 0.9.1
+CURRENT_PROJECT_VERSION = 6
 
 SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor
 SWIFT_APPROACHABLE_CONCURRENCY = YES
