@@ -1,4 +1,5 @@
 .DEFAULT_GOAL := help
+SHELL := /bin/bash -o pipefail
 
 BUILD_DIR   ?= $(CURDIR)/build
 CONFIG      ?= Debug
@@ -9,7 +10,7 @@ APP          = $(BUILD_DIR)/Build/Products/$(CONFIG)/PNGuin.app
 # xcodebuild writes the app's pins into the root Package.resolved, plain SwiftPM prunes them again; this keeps them.
 SWIFTPM     := --force-resolved-versions
 
-.PHONY: help generate build cli test run install install-cli list-devices clean
+.PHONY: help generate build cli test run mac-run install install-cli list-devices clean
 
 help: ## Show this help.
 	@awk 'BEGIN { printf "PNGuin developer targets\n\nUsage:\n  make <target> [CONFIG=Release] [PREFIX=~/.local] [APP_DEST=/Applications]\n\nTargets:\n" } /^[a-zA-Z0-9_.-]+:.*##/ { split($$0, a, ":.*## "); printf "  %-14s %s\n", a[1], a[2] }' $(MAKEFILE_LIST)
@@ -30,6 +31,8 @@ test: ## Run the PNGuinKit unit tests.
 
 run: build ## Build and launch the app (logs to the terminal).
 	LOGLEVEL=TRACE OS_ACTIVITY_MODE=disabled $(APP)/Contents/MacOS/PNGuin
+
+mac-run: run ## Build and launch the macOS app (alias for run).
 
 install: CONFIG := Release
 install: build ## Install the app to APP_DEST (default /Applications).
