@@ -47,7 +47,7 @@ make install       # PNGuin.app   -> /Applications (needs xcodegen and shark, se
 ```
 
 `make help` lists all targets. The app project is generated with [XcodeGen](https://github.com/yonaskolb/XcodeGen)
-and localised with [Shark](https://github.com/kaandedeoglu/Shark) (`brew install xcodegen`); put your signing team
+and localised with [Shark](https://github.com/kaandedeoglu/Shark) 2.2.0 or later (`brew install xcodegen kaandedeoglu/formulae/shark`); put your signing team
 into `App/Config/Local.xcconfig` (`DEVELOPMENT_TEAM = …`).
 
 ## The menu-bar app

@@ -6,8 +6,6 @@ options:
   developmentLanguage: en
   createIntermediateGroups: true
   generateEmptyDirectories: true
-  # Shark's XcodeGraph mapper counts navigator folders and explicit package references twice.
-  postGenCommand: python3 ../scripts/deduplicate-package-references.py PNGuin.xcodeproj/project.pbxproj
 
 packages:
   PNGuin:
