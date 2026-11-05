@@ -37,5 +37,6 @@ design, HIG.md for UI tokens, `make help` for commands.
 - Comments/commits in English, no co-author trailers.
 - Homebrew app distribution: `make app-release NOTARY_PROFILE=NOTARIZE` builds a universal Developer ID
   app, notarizes/staples it and generates `build/dist/pnguin.rb` from the final ZIP. `make app-upload`
-  uploads to the existing version tag; only then copy the generated cask to the tap and publish it.
+  creates a missing release at the existing version tag and uploads the app; only then copy the
+  generated cask to the tap and publish it.
   The CLI formula and app cask both use `pnguin`; specify `--formula` or `--cask` explicitly.

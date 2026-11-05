@@ -81,7 +81,7 @@ app-release: ## Notarize the app and generate the Homebrew cask.
 	ditto -c -k --keepParent --sequesterRsrc "$(RELEASE_APP)" "$(APP_ARCHIVE)"
 	python3 scripts/write-cask.py --archive "$(APP_ARCHIVE)" --output "$(DIST_DIR)/pnguin.rb"
 
-app-upload: ## Verify and upload the prepared app to the existing version's GitHub release.
+app-upload: ## Verify and upload the app, creating the release at its existing tag if needed.
 	codesign --verify --deep --strict --verbose=2 "$(RELEASE_APP)"
 	xcrun lipo "$(RELEASE_APP)/Contents/MacOS/PNGuin" -verify_arch arm64
 	xcrun lipo "$(RELEASE_APP)/Contents/MacOS/PNGuin" -verify_arch x86_64
@@ -89,7 +89,13 @@ app-upload: ## Verify and upload the prepared app to the existing version's GitH
 	spctl -a -vv -t exec "$(RELEASE_APP)"
 	ditto -c -k --keepParent --sequesterRsrc "$(RELEASE_APP)" "$(APP_ARCHIVE)"
 	python3 scripts/write-cask.py --archive "$(APP_ARCHIVE)" --output "$(DIST_DIR)/pnguin.rb"
-	gh release upload "v$(APP_VERSION)" "$(APP_ARCHIVE)" --repo mickeyl/PNGuin
+	@release_tags="$$(gh api --paginate repos/mickeyl/PNGuin/releases --jq '.[].tag_name')" || exit $$?; \
+	if printf '%s\n' "$$release_tags" | grep -Fx "v$(APP_VERSION)" >/dev/null; then \
+		gh release upload "v$(APP_VERSION)" "$(APP_ARCHIVE)" --repo mickeyl/PNGuin; \
+	else \
+		gh release create "v$(APP_VERSION)" "$(APP_ARCHIVE)" --repo mickeyl/PNGuin \
+			--verify-tag --title "PNGuin $(APP_VERSION)" --notes-from-tag; \
+	fi
 	@printf '\nApp uploaded. Copy %s/pnguin.rb to homebrew-formulae/Casks/pnguin.rb and publish the tap.\n' "$(DIST_DIR)"
 
 clean: ## Remove build artifacts.

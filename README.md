@@ -166,8 +166,10 @@ cp build/dist/pnguin.rb ../homebrew-formulae/Casks/pnguin.rb
 `app-release` builds both Apple Silicon and Intel slices with the resolved package versions, verifies
 the signature, notarizes and staples the app, and generates the cask from the final ZIP's version and
 SHA-256. `SIGN_IDENTITY` and `NOTARY_PROFILE` are overridable; notarization credentials stay in the
-Keychain. `app-upload` verifies the app again and uploads the ZIP to the existing `v<version>` GitHub
-release, refusing to overwrite an existing asset. Do not publish the cask before that upload succeeds.
+Keychain. `app-upload` verifies the app again and uploads the ZIP to the `v<version>` GitHub release,
+creating that release at the existing remote tag if necessary. It refuses to create a missing tag or
+overwrite an existing asset; authentication and network errors stop publication. Do not publish the
+cask before that upload succeeds.
 
 Review and commit `Casks/pnguin.rb` in the tap, then push it and run `brew update` before installing.
 An existing manually installed `/Applications/PNGuin.app` can be replaced with
