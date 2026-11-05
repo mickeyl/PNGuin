@@ -31,17 +31,29 @@ PNGuin (say *penguin*) delivers PNGs from your devices. It is two things built o
 
 ## Install
 
+### Menu-bar app via Homebrew Cask
+
+After the app archive and cask have been published (see the release workflow below):
+
+```sh
+brew install --cask mickeyl/formulae/pnguin
+```
+
+The cask installs `PNGuin.app` into `/Applications` and requires macOS 26 or later.
+To uninstall: `brew uninstall --cask pnguin`. Settings and saved screenshots are retained;
+`--zap` additionally removes preferences and cached previews, but never your saved screenshots.
+
 ### CLI via Homebrew
 
 ```sh
 brew tap mickeyl/formulae
-brew install pnguin
+brew install --formula pnguin
 ```
 
 The formula installs the `iphone-screenshot` command. Existing installations of the former
 `iphone-screenshot` formula migrate to `pnguin` through Homebrew updates.
 
-To uninstall: `brew uninstall pnguin`.
+To uninstall: `brew uninstall --formula pnguin`.
 
 ### From source
 
@@ -139,6 +151,28 @@ make run       # build and launch with trace logging
 
 Layout: `Sources/PNGuinKit` (UI-free core), `Sources/iphone-screenshot` (CLI), `App/` (SwiftUI menu-bar
 app). See [PLAN.md](PLAN.md) for the design notes and [HIG.md](HIG.md) for the UI tokens.
+
+### Publishing the menu-bar app
+
+The cask needs a Developer ID signed, notarized universal app archive. The CLI formula and app cask
+can both use the name `pnguin`; select them explicitly with `--formula` or `--cask`.
+
+```sh
+make app-release NOTARY_PROFILE=NOTARIZE
+make app-upload
+cp build/dist/pnguin.rb ../homebrew-formulae/Casks/pnguin.rb
+```
+
+`app-release` builds both Apple Silicon and Intel slices with the resolved package versions, verifies
+the signature, notarizes and staples the app, and generates the cask from the final ZIP's version and
+SHA-256. `SIGN_IDENTITY` and `NOTARY_PROFILE` are overridable; notarization credentials stay in the
+Keychain. `app-upload` verifies the app again and uploads the ZIP to the existing `v<version>` GitHub
+release, refusing to overwrite an existing asset. Do not publish the cask before that upload succeeds.
+
+Review and commit `Casks/pnguin.rb` in the tap, then push it and run `brew update` before installing.
+An existing manually installed `/Applications/PNGuin.app` can be replaced with
+`brew install --cask --force mickeyl/formulae/pnguin`; this preserves preferences and saved screenshots.
+The release ZIP and generated cask remain under the ignored `build/dist/` directory.
 
 ## License
 

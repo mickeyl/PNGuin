@@ -1,0 +1,25 @@
+cask "pnguin" do
+  version "@VERSION@"
+  sha256 "@SHA256@"
+
+  url "https://github.com/mickeyl/PNGuin/releases/download/v#{version}/PNGuin-#{version}-macOS.zip"
+  name "PNGuin"
+  desc "Capture iPhone, iPad and simulator screenshots from the menu bar"
+  homepage "https://github.com/mickeyl/PNGuin"
+
+  depends_on macos: :tahoe
+
+  app "PNGuin.app"
+
+  uninstall quit: "de.vanille.ScreenGrab"
+
+  zap trash: [
+    "~/Library/Caches/PNGuin",
+    "~/Library/Preferences/de.vanille.ScreenGrab.plist",
+  ]
+
+  caveats <<~EOS
+    PNGuin requires Xcode 27 or later. Physical devices must be paired,
+    trusted and unlocked, with Developer Mode enabled.
+  EOS
+end
