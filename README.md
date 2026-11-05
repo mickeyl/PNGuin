@@ -35,8 +35,13 @@ PNGuin (say *penguin*) delivers PNGs from your devices. It is two things built o
 
 ```sh
 brew tap mickeyl/formulae
-brew install iphone-screenshot
+brew install pnguin
 ```
+
+The formula installs the `iphone-screenshot` command. Existing installations of the former
+`iphone-screenshot` formula migrate to `pnguin` through Homebrew updates.
+
+To uninstall: `brew uninstall pnguin`.
 
 ### From source
 
