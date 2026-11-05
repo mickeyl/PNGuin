@@ -63,7 +63,8 @@ app-package: generate ## Build and package the universal Developer ID app.
 		ENABLE_HARDENED_RUNTIME=YES CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
 		OTHER_CODE_SIGN_FLAGS='--timestamp' build | xcbeautify -qq
 	codesign --verify --deep --strict --verbose=2 "$(RELEASE_APP)"
-	lipo -verify_arch arm64 x86_64 "$(RELEASE_APP)/Contents/MacOS/PNGuin"
+	xcrun lipo "$(RELEASE_APP)/Contents/MacOS/PNGuin" -verify_arch arm64
+	xcrun lipo "$(RELEASE_APP)/Contents/MacOS/PNGuin" -verify_arch x86_64
 	@test "$$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$(RELEASE_APP)/Contents/Info.plist")" = "$(APP_VERSION)"
 	@mkdir -p "$(DIST_DIR)"
 	codesign -d --entitlements - "$(RELEASE_APP)" > "$(DIST_DIR)/entitlements.plist"
@@ -82,7 +83,8 @@ app-release: ## Notarize the app and generate the Homebrew cask.
 
 app-upload: ## Verify and upload the prepared app to the existing version's GitHub release.
 	codesign --verify --deep --strict --verbose=2 "$(RELEASE_APP)"
-	lipo -verify_arch arm64 x86_64 "$(RELEASE_APP)/Contents/MacOS/PNGuin"
+	xcrun lipo "$(RELEASE_APP)/Contents/MacOS/PNGuin" -verify_arch arm64
+	xcrun lipo "$(RELEASE_APP)/Contents/MacOS/PNGuin" -verify_arch x86_64
 	xcrun stapler validate "$(RELEASE_APP)"
 	spctl -a -vv -t exec "$(RELEASE_APP)"
 	ditto -c -k --keepParent --sequesterRsrc "$(RELEASE_APP)" "$(APP_ARCHIVE)"
